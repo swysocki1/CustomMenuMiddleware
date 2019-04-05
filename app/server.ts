@@ -8,7 +8,11 @@ const app: express.Application = express();
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.get('/', function (req, res) {
+app.get('/', async(req, res) => {
+	const auth = require('./helpers/authentication');
+	const a = new auth.Authentication();
+	const result = await a.test();
+	console.log(result);
 	res.json({ message: 'Hello World!' });
 });
 
