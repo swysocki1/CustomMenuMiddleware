@@ -5,7 +5,7 @@ class MysqlConnector {
 	// private secretManager;
 	constructor() {
 		// this.connect();
-		this.timeout = 10000;
+		this.timeout = 3000;
 	}
 	// constructor(secretManager: SecretManager) {
 	// 	this.secretManager = secretManager;
@@ -13,9 +13,6 @@ class MysqlConnector {
 	connect(res) {
 		console.log('connecting');
 		if (!this.isConnected()) {
-			// const hostname = await this.secretManager.getMySqlHostname();
-			// const username = await this.secretManager.getMySqlUsername();
-			// const password = await this.secretManager.getMySqlPassword();
 			const hostname = process.env.MYSQL_HOSTNAME;
 			const username = process.env.MYSQL_USERNAME;
 			const password = process.env.MYSQL_PASSWORD;
@@ -25,7 +22,7 @@ class MysqlConnector {
 				user: username,
 				password: password,
 				database: 'users',
-				connectTimeout: 5000
+				connectTimeout: this.timeout
 			}).then((client) => {
 				this.client = client;
 				console.log('connected', this.client);
