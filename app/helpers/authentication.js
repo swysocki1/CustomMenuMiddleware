@@ -1,10 +1,10 @@
 class Authentication {
-	constructor(mysql) {
-        this.mysql = mysql;
+	constructor(mysqlUser) {
+        this.mysqlUser = mysqlUser;
 	}
 	authenticate(username, password, res) {
 	    console.log('getUsersByUsername');
-		this.mysql.getUsersByUsername(username, (mysqlErr, mysqlResult) => {
+		this.mysqlUser.getUsersByUsername(username, (mysqlErr, mysqlResult) => {
 			if (mysqlErr) res(mysqlErr);
 			else {
 				let user;
@@ -34,13 +34,13 @@ class Authentication {
             if (missingFields.length > 0) {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
-                this.mysql.getUsersByUsername(username, (getUserErr, users) => {
+                this.mysqlUser.getUsersByUsername(username, (getUserErr, users) => {
                     if (getUserErr) res(getUserErr);
                     else {
                         if (users && users.length > 0) {
                             res('Username Already Exists');
                         } else {
-                            this.mysql.createUser(user, (createUserError, userObj) => {
+                            this.mysqlUser.createUser(user, (createUserError, userObj) => {
                                 if (createUserError) res(createUserError);
                                 else {
                                 	res(null, userObj);
@@ -57,11 +57,11 @@ class Authentication {
 	updateUser(user, res) {
         if (user) {
             if (user.id) {
-                this.mysql.updateUser(user, (updateUserErr, updateUserRes) => {
+                this.mysqlUser.updateUser(user, (updateUserErr, updateUserRes) => {
                     if (updateUserErr) res(updateUserErr);
                     else {
                         console.log('Update User Response', updateUserRes);
-                        this.mysql.getUserById(user.id, (getUserErr, getUserRes) => {
+                        this.mysqlUser.getUserById(user.id, (getUserErr, getUserRes) => {
                            res(getUserErr, getUserRes);
                         });
                     }
@@ -74,11 +74,11 @@ class Authentication {
     upsertUser(user, res) {
         if (user) {
             if (user.id) {
-                this.mysql.upsertUser(user, (updateUserErr, updateUserRes) => {
+                this.mysqlUser.upsertUser(user, (updateUserErr, updateUserRes) => {
                     if (updateUserErr) res(updateUserErr);
                     else {
                         console.log('Update User Response', updateUserRes);
-                        this.mysql.getUserById(user.id, (getUserErr, getUserRes) => {
+                        this.mysqlUser.getUserById(user.id, (getUserErr, getUserRes) => {
                             res(getUserErr, getUserRes);
                         });
                     }
@@ -91,7 +91,7 @@ class Authentication {
 	deleteUser(user, res) {
         if (user) {
             if (user.id) {
-                this.mysql.deleteUser(user, (deleteUserErr, deleteUserRes) => {
+                this.mysqlUser.deleteUser(user, (deleteUserErr, deleteUserRes) => {
                     res(deleteUserErr, deleteUserRes);
                 });
             } else {

@@ -4,13 +4,13 @@ const cors = require('cors');
 // import apiRouter = require('./api');
 const ErrorHandler = require('./helpers/errorHandler');
 const Authentication = require('./helpers/authentication');
-const MysqlConnector = require('./helpers/mysql.connector');
-
+// const MysqlConnector = require('./helpers/mysql/mysql.connector');
+const MysqlUser = require('./helpers/mysql/mysql.user');
 class Server {
     constructor() {
-        this.mysql = new MysqlConnector();
-        this.authentication = new Authentication(this.mysql);
-        this.errorHandler = new ErrorHandler(this.mysql);
+        this.mysqlUser = new MysqlUser();
+        this.authentication = new Authentication(this.mysqlUser);
+        this.errorHandler = new ErrorHandler(this.mysqlUser);
         this.app = express();
         this.startServer();
         this.loadRoutes();
