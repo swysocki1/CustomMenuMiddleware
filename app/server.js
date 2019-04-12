@@ -6,11 +6,13 @@ const ErrorHandler = require('./helpers/errorHandler');
 const Authentication = require('./helpers/authentication');
 // const MysqlConnector = require('./helpers/mysql/mysql.connector');
 const MysqlUser = require('./helpers/mysql/mysql.user');
+const MysqlRestaurant = require('./helpers/mysql/mysql.restaurant');
 class Server {
     constructor() {
         this.mysqlUser = new MysqlUser();
+        this.mysqlRestaurant = new MysqlRestaurant();
         this.authentication = new Authentication(this.mysqlUser);
-        this.errorHandler = new ErrorHandler(this.mysqlUser);
+        this.errorHandler = new ErrorHandler([this.mysqlUser, this.mysqlRestaurant]);
         this.app = express();
         this.startServer();
         this.loadRoutes();
@@ -39,23 +41,20 @@ class Server {
                     }
                 });
             } catch(error) {
-                this.errorHandler.internalServerError(error, req, res);
+                this.errorHandler.catchAllError(error, req, res);
             }
         });
         this.app.post('/user/create', (req, res) => {
             try {
                 this.authentication.createUser(req.body, (reqErr, reqRes) => {
                     if (reqErr) {
-                        if (reqErr === 'INVALID LOGIN')
-                            this.errorHandler.invalidLogin(reqErr, req, res);
-                        else
-                            this.errorHandler.internalServerError(reqErr, req, res);
+                        this.errorHandler.internalServerError(reqErr, req, res);
                     } else {
                         res.json(reqRes);
                     }
                 });
             } catch(error) {
-                this.errorHandler.internalServerError(error, req, res);
+                this.errorHandler.catchAllError(error, req, res);
             }
         });
         this.app.post('/user/update', (req, res) => {
@@ -65,7 +64,7 @@ class Server {
                     else res.json(reqRes);
                 });
             } catch(error) {
-                this.errorHandler.internalServerError(error, req, res);
+                this.errorHandler.catchAllError(error, req, res);
             }
         });
         this.app.post('/user/upsert', (req, res) => {
@@ -75,7 +74,7 @@ class Server {
                     else res.json(reqRes);
                 });
             } catch(error) {
-                this.errorHandler.internalServerError(error, req, res);
+                this.errorHandler.catchAllError(error, req, res);
             }
         });
         this.app.post('/user/delete', (req, res) => {
@@ -85,9 +84,55 @@ class Server {
                     else res.json(reqRes);
                 });
             } catch(error) {
-                this.errorHandler.internalServerError(error, req, res);
+                this.errorHandler.catchAllError(error, req, res);
             }
         });
+
+        //  Restaurant CRUD
+        this.app.post('/restaurant/create', (req, res) => {
+            try {
+                this.mysqlRestaurant.createResturant(req.body, (reqErr, reqRes) => {
+                    if (reqErr) {
+                        this.errorHandler.internalServerError(reqErr, req, res);
+                    } else {
+                        res.json(reqRes);
+                    }
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
+        this.app.post('/restaurant/update', (req, res) => {
+            try {
+                this.mysqlRestaurant.updateRestaurant(req.body, (reqErr, reqRes) => {
+                    if (reqErr) this.errorHandler.internalServerError(reqErr, req, res);
+                    else res.json(reqRes);
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
+        this.app.post('/restaurant/upsert', (req, res) => {
+            try {
+                this.mysqlRestaurant.upsertRestaurant(req.body, (reqErr, reqRes) => {
+                    if (reqErr) this.errorHandler.internalServerError(reqErr, req, res);
+                    else res.json(reqRes);
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
+        this.app.post('/restaurant/delete', (req, res) => {
+            try {
+                this.mysqlRestaurant.deleteRestaurant(req.body, (reqErr, reqRes) => {
+                    if (reqErr) this.errorHandler.internalServerError(reqErr, req, res);
+                    else res.json(reqRes);
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
+
         // app.use('/v1/api', apiRouter);
         this.app.use(this.errorHandler.notFound);
         this.app.use(this.errorHandler.catchAllError);
