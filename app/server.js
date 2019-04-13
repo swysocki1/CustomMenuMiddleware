@@ -6,25 +6,30 @@ const ErrorHandler = require('./helpers/errorHandler');
 const Authentication = require('./helpers/manager/authentication');
 const RestaurantManager = require('./helpers/manager/restaurantManager');
 const MenuManager = require('./helpers/manager/menu/menuManager');
+const MenuSectionManager = require('./helpers/manager/menu/menuSectionManager');
 // const MysqlConnector = require('./helpers/mysql/mysql.connector');
 const MysqlUser = require('./helpers/mysql/mysql.user');
 const MysqlRestaurant = require('./helpers/mysql/mysql.restaurant');
 const MysqlMenu = require('./helpers/mysql/mysql.menu');
+const MysqlMenuSection = require('./helpers/mysql/mysql.menuSection');
 const Controller = require('./controller/controller');
 const AuthenticationController = require('./controller/authentication.controller');
 const UserController = require('./controller/user.controller');
 const RestaurantController = require('./controller/restaurant.controller');
 const MenuController = require('./controller/menu.controller');
+const MenuSectionController = require('./controller/menuSection.controller');
 
 class Server {
     constructor() {
         this.mysqlUser = new MysqlUser();
         this.mysqlRestaurant = new MysqlRestaurant();
         this.mysqlMenu = new MysqlMenu();
+        this.mysqlMenuSection = new MysqlMenuSection();
         this.authentication = new Authentication(this.mysqlUser);
         this.restaurantManager = new RestaurantManager(this.mysqlRestaurant, this.authentication);
-        this.menuManager = new RestaurantManager(this.mysqlMenu);
-        this.errorHandler = new ErrorHandler([this.mysqlUser, this.mysqlRestaurant, this.mysqlMenu]);
+        this.menuManager = new MenuManager(this.mysqlMenu);
+        this.menuSectionManager = new MenuSectionManager(this.mysqlMenuSection);
+        this.errorHandler = new ErrorHandler([this.mysqlUser, this.mysqlRestaurant, this.mysqlMenu, this.mysqlMenuSection]);
         this.app = express();
         this.startServer();
         this.loadRoutes();
@@ -40,6 +45,7 @@ class Server {
         new UserController(this.app, this.errorHandler, this.authentication);
         new RestaurantController(this.app, this.errorHandler, this.restaurantManager);
         new MenuController(this.app, this.errorHandler, this.menuManager);
+        new MenuSectionController(this.app, this.errorHandler, this.menuSectionManager);
 
         // app.use('/v1/api', apiRouter);
         this.app.use(this.errorHandler.notFound);

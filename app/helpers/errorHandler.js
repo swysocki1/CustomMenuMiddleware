@@ -3,11 +3,13 @@ class ErrorHandler {
 	    this.mysqlList = mysqlList;
     }
     genericResponse(err, data, req, res, next) {
+        setDefaultHeaders(res);
         if (err) this.internalServerError(err, req, res);
         else res.json(data);
     }
     invalidLogin(err, req, res, next) {
 	    console.error(err);
+        setDefaultHeaders(res);
 	    this.disconnectMysql().then(() => {
             res.status(404);
             res.json({status: 'error',  message: 'Invalid Username and/or Password' });
@@ -15,6 +17,7 @@ class ErrorHandler {
     }
     notFound(err, req, res, next) {
         console.error(err);
+        setDefaultHeaders(res);
         this.disconnectMysql().then(() => {
             res.status(404);
             res.json({status: 'error', message: 'NOT FOUND'});
@@ -22,6 +25,7 @@ class ErrorHandler {
     }
     internalServerError(err, req, res, next) {
         console.error(err);
+        setDefaultHeaders(res);
         this.disconnectMysql().then(() => {
             if (err.message) {
                 res.status(400);
@@ -31,6 +35,7 @@ class ErrorHandler {
     }
     catchAllError(err, req, res, next) {
         console.error(err);
+        setDefaultHeaders(res);
         this.disconnectMysql().then(() => {
             res.status(500);
             res.json({status: 'error', message: 'Something Mysterious Happened?'});
@@ -43,6 +48,9 @@ class ErrorHandler {
 	            else resolve(message);
             });
         }));
+    }
+    setDefaultHeaders(res) {
+        res.set('Access-Control-Allow-Origin', '*');
     }
 }
 module.exports = ErrorHandler;

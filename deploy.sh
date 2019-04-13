@@ -14,7 +14,6 @@ CONFIG="{
 
 cp package.json dist/
 cp index.js dist/
-cp swagger.json dist/
 cp -rf app/ dist/app/
 
 # Only include production modules

@@ -46,12 +46,6 @@ class MysqlConnector {
 			res();
 		}
 	}
-
-    createRestaurant(restaurant, res) {
-	    if (restaurant) {
-
-        }
-    }
 	query(query, timeout) {
         console.log('do query: ', query);
 		return new Promise((resolve, reject) => {

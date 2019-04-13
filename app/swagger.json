@@ -6,9 +6,9 @@
     "description": "A simple API used to build customized Menu's for local restaurants."
   },
   "schemes": [
-    "http"
+    "https"
   ],
-  "host": "localhost:4201",
+  "host": "xivw9git3l.execute-api.us-east-1.amazonaws.com/prod",
   "basePath": "",
   "paths": {
     "/ping": {

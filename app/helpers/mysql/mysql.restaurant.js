@@ -65,7 +65,7 @@ class MysqlRestaurant extends MysqlConnector {
                         if(!getRestaurantByIdRes) {
                             res('Restaurant Does Not Exist');
                         } else {
-                            let query = `UPDATE restaurant SET name = '${restaurant.name}' description = '${restaurant.description}' WHERE id = restaurant.id`;
+                            let query = `UPDATE restaurant SET name = '${restaurant.name}' description = '${restaurant.description}' WHERE id = ${restaurant.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });

@@ -75,7 +75,7 @@ class MysqlUser extends MysqlConnector {
                             res('User Does Not Exist');
                         } else {
                             let query = `UPDATE user SET password = '${user.password}' firstname = '${user.firstname}' lastname = '${user.lastname}' ` +
-                                `email = '${user.email}' WHERE id = user.id`;
+                                `email = '${user.email}' WHERE id = ${user.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });

@@ -66,7 +66,7 @@ class MysqlMenu extends MysqlConnector {
                         if(!getMenuByIdRes) {
                             res('Menu Does Not Exist');
                         } else {
-                            let query = `UPDATE menu SET name = '${menu.name}' description = '${menu.description}' WHERE id = menu.id`;
+                            let query = `UPDATE menu SET name = '${menu.name}' description = '${menu.description}' WHERE id = ${menu.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });
