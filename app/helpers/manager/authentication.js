@@ -19,6 +19,13 @@ class Authentication {
             }
 		});
 	}
+	getUserById(user, res) {
+	    if (user) {
+	        this.mysqlUser.getUserById(user, (err, result) => {
+	            res(err, result);
+            });
+        } else res('User Id Not Provided');
+    }
     createUser(user, res) {
 		if (user) {
             const missingFields = [];

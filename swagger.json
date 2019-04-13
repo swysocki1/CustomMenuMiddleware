@@ -1,0 +1,36 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Custom Menu API",
+    "description": "A simple API used to build customized Menu's for local restaurants."
+  },
+  "schemes": [
+    "http"
+  ],
+  "host": "localhost:4201",
+  "basePath": "",
+  "paths": {
+    "/ping": {
+      "get": {
+        "summary": "",
+        "description": "Send a ping to test connecting to server.",
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
