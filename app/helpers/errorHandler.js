@@ -2,6 +2,10 @@ class ErrorHandler {
 	constructor(mysqlList) {
 	    this.mysqlList = mysqlList;
     }
+    genericResponse(err, data, req, res, next) {
+        if (err) this.internalServerError(err, req, res);
+        else res.json(data);
+    }
     invalidLogin(err, req, res, next) {
 	    console.error(err);
 	    this.disconnectMysql().then(() => {

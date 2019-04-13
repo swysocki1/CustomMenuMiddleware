@@ -2,7 +2,7 @@ const MysqlConnector = require('./mysql.connector');
 
 class MysqlRestaurant extends MysqlConnector {
     getRestaurantsByName(name, res) {
-        const query = `SELECT * from resturant where name like '%${name}%'`;
+        const query = `SELECT * from restaurant where name like '%${name}%'`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
                 res(null, queryRes);
@@ -10,23 +10,19 @@ class MysqlRestaurant extends MysqlConnector {
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
-    createResturant(resturant, res) {
-        const query = `Insert into resturant (name, description) values ('${resturant.name}', '${resturant.description}')`;
+    createRestaurant(restaurant, res) {
+        const query = `Insert into restaurant (name, description) values ('${restaurant.name}', '${restaurant.description}')`;
         this.query(query, this.timeout).then( (queryRes) => {
-            this.getResturantByName(resturant.name, (getResturantErr, resturantRes) => {
-                res(getResturantErr, resturantRes);
+            this.getRestaurantByName(restaurant.name, (getRestaurantErr, restaurantRes) => {
+                res(getRestaurantErr, restaurantRes);
             });
         }).catch(queryError => { res(queryError); });
     }
-    getResturantByName(name, res) {
+    getRestaurantByName(name, res) {
         this.getRestaurantsByName(name, (queryError, restaurants) => {
-            if (queryError) {
-                res(queryError);
-            } else if (restaurants && restaurants.length > 0) {
-                res(null, restaurants[0]);
-            } else {
-                res('No Restaurants Found');
-            }
+            if (queryError) res(queryError);
+            else if (restaurants && restaurants.length > 0) res(null, restaurants[0]);
+            else res('No Restaurants Found');
         })
     }
     getRestaurantById(id, res) {
@@ -57,12 +53,8 @@ class MysqlRestaurant extends MysqlConnector {
                         }
                     }
                 });
-            } else {
-                res('No Restaurant id Provided');
-            }
-        } else {
-            res('No Restaurant Object Provided');
-        }
+            } else res('No Restaurant id Provided');
+        } else res('No Restaurant Object Provided');
     }
     upsertRestaurant(restaurant, res) {
         if (restaurant) {
@@ -80,12 +72,8 @@ class MysqlRestaurant extends MysqlConnector {
                         }
                     }
                 });
-            } else {
-                res('No Restaurant id Provided');
-            }
-        } else {
-            res('No Restaurant Object Provided');
-        }
+            } else res('No Restaurant id Provided');
+        } else res('No Restaurant Object Provided');
     }
     deleteRestaurant(restaurant, res) {
         if (restaurant) {
@@ -95,13 +83,67 @@ class MysqlRestaurant extends MysqlConnector {
                 this.query(query, this.timeout).then((queryResult) => {
                     res(null, queryResult);
                 }).catch((error) => { res(error); });
-            } else {
-                res('No Restaurant id Provided');
-            }
+            } else res('No Restaurant id Provided');
         }
-        else {
-            res('No Restaurant Provided');
-        }
+        else { res('No Restaurant Provided'); }
+    }
+    getRestaurantOwnersByRestaurant(restaurant, res) {
+        if (typeof restaurant === 'number' || typeof restaurant === 'string') {
+            const query = `select r.id as restaurantOwnerId, r.owner, r.restaurant, u.id as userId, u.username, u.photoURL,` +
+                ` u.firstname, u.lastname, u.email from restaurant_owner as r JOIN user u ON r.owner=u.id where r.restaurant='${restaurant}'`;
+            this.query(query, this.timeout).then((res) => {
+                res(null, res);
+            }).catch((error) => { res(error); });
+        } else res('No Restaurant Id Provided')
+    }
+    getOwnedRestaurantsByOwner(user, res) {
+        if (typeof user === 'number' || typeof user === 'string') {
+            const query = `select ro.id as restaurantOwnerId, ro.owner, ro.restaurant, r.id as restaurantId, r.name, ` +
+                `r.description from restaurant_owner as ro JOIN restaurant r ON ro.owner=r.id' where r.owner='${user}'`;
+            this.query(query, this.timeout).then((res) => {
+                res(null, res);
+            }).catch((error) => { res(error); });
+        } else res('No User Id Provided')
+    }
+    addRestaurantOwner(restaurant, user, res) {
+        if (typeof restaurant === 'number' || typeof restaurant === 'string') {
+            if (typeof user === 'number' || typeof user === 'string') {
+                const query = `Insert into restaurant_owner (owner, restaurant) values ('${user}',${restaurant})`;
+                this.query(query, this.timeout).then((res) => {
+                    res(null, res);
+                }).catch((error) => { res(error); });
+            } else res('No User Id Provided')
+        } else res('No Restaurant Id Provided')
+    }
+    removeRestaurantOwner(restaurant, user, res) {
+        if (typeof restaurant === 'number' || typeof restaurant === 'string') {
+            if (typeof user === 'number' || typeof user === 'string') {
+                const query = `DELETE from restaurant_owner where owner='${user}' AND restaurant='${restaurant}'`;
+                this.query(query, this.timeout).then((res) => {
+                    res(null, res);
+                }).catch((error) => { res(error); });
+            } else res('No User Id Provided')
+        } else res('No Restaurant Id Provided')
+    }
+    removeRestaurantOwnerByUser(restaurant, user, res) {
+        if (typeof restaurant === 'number' || typeof restaurant === 'string') {
+            if (typeof user === 'number' || typeof user === 'string') {
+                const query = `DELETE from restaurant_owner where owner='${user}'`;
+                this.query(query, this.timeout).then((res) => {
+                    res(null, res);
+                }).catch((error) => { res(error); });
+            } else res('No User Id Provided')
+        } else res('No Restaurant Id Provided')
+    }
+    removeRestaurantOwnerByRestaurant(restaurant, user, res) {
+        if (typeof restaurant === 'number' || typeof restaurant === 'string') {
+            if (typeof user === 'number' || typeof user === 'string') {
+                const query = `DELETE from restaurant_owner where restaurant='${restaurant}'`;
+                this.query(query, this.timeout).then((res) => {
+                    res(null, res);
+                }).catch((error) => { res(error); });
+            } else res('No User Id Provided')
+        } else res('No Restaurant Id Provided')
     }
 }
 module.exports = MysqlRestaurant;

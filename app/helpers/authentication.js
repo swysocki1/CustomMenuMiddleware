@@ -99,5 +99,14 @@ class Authentication {
             }
         } else res('No User Provided');
 	}
+	userExists(user) {
+        return new Promise((resolve, reject) => {
+            this.mysqlUser.getUserById(user, (err, queryRes) => {
+                if (err) reject(err);
+                else if(!queryRes) reject('User Does Not Exist!');
+                else resolve(queryRes);
+            });
+        });
+    }
 }
 module.exports = Authentication;

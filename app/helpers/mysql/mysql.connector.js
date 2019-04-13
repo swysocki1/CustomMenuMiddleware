@@ -47,8 +47,8 @@ class MysqlConnector {
 		}
 	}
 
-    createResturant(resturant, res) {
-	    if (resturant) {
+    createRestaurant(restaurant, res) {
+	    if (restaurant) {
 
         }
     }
