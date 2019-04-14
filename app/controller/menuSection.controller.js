@@ -1,8 +1,9 @@
 const Controller = require('./controller');
 class MenuSectionController extends Controller {
-    constructor(app, errorHandler, menuSectionManager) {
+    constructor(app, errorHandler, menuSectionManager, foodAddOnManager) {
         super(app, errorHandler, '/menu/section');
         this.menuSectionManager = menuSectionManager;
+        this.foodAddOnManager = foodAddOnManager;
     }
     loadRoutes() {
         this.router.get('/getById/:id', (req, res) => {

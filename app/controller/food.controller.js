@@ -1,8 +1,9 @@
 const Controller = require('./controller');
 class FoodController extends Controller {
-    constructor(app, errorHandler, foodManager) {
+    constructor(app, errorHandler, foodManager, foodAddOnManager) {
         super(app, errorHandler, '/food');
         this.foodManager = foodManager;
+        this.foodAddOnManager = foodAddOnManager;
     }
     loadRoutes() {
         this.router.get('/getById/:id', (req, res) => {
