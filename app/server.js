@@ -33,11 +33,11 @@ class Server {
         this.mysqlFood = new MysqlFood();
         this.mysqlFoodAddOn = new MysqlFoodAddOn();
         this.authentication = new Authentication(this.mysqlUser);
-        this.restaurantManager = new RestaurantManager(this.mysqlRestaurant, this.authentication);
-        this.menuManager = new MenuManager(this.mysqlMenu);
-        this.menuSectionManager = new MenuSectionManager(this.mysqlMenuSection);
-        this.foodManager = new FoodManager(this.mysqlFood);
         this.foodAddOnManager = new FoodAddOnManager(this.mysqlFoodAddOn);
+        this.foodManager = new FoodManager(this.mysqlFood, this.foodAddOnManager);
+        this.menuSectionManager = new MenuSectionManager(this.mysqlMenuSection, this.foodAddOnManager, this.foodManager);
+        this.menuManager = new MenuManager(this.mysqlMenu, this.menuSectionManager);
+        this.restaurantManager = new RestaurantManager(this.mysqlRestaurant, this.authentication, this.menuManager);
         this.errorHandler = new ErrorHandler([this.mysqlUser, this.mysqlRestaurant, this.mysqlMenu, this.mysqlMenuSection, this.mysqlFood, this.mysqlFoodAddOn]);
         this.app = express();
         this.startServer();

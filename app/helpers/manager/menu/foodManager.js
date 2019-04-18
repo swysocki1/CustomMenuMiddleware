@@ -1,6 +1,45 @@
 class FoodManager {
-    constructor(mysqlFood) {
+    constructor(mysqlFood, foodAddOnManager) {
         this.mysqlFood = mysqlFood;
+        this.foodAddOnManager = foodAddOnManager;
+    }
+    getFoodById(id, res) {
+        if (id) {
+            this.mysqlFood.getFoodById(id, (getFoodErr, food) => {
+                if (getFoodErr) res(getFoodErr);
+                else {
+                    this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, addon) => {
+                        if (err) res(err);
+                        else {
+                            food.foodAddOn=addon;
+                            res(null, food)
+                        }
+                    });
+                }
+            });
+        } else res('Food Id was not provided');
+    }
+    getFoodByMenuSectionId(menuSectionId, res) {
+        if (menuSectionId) {
+            this.mysqlFood.getFoodByMenuSectionId(menuSectionId, (getFoodErr, foods) => {
+                if (getFoodErr) res(getFoodErr);
+                else {
+                    Promise.all(foods.map((food) => {
+                        return new Promise((resolve, reject) => {
+                            this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, res) => {
+                                if (err) reject(err);
+                                else {
+                                    food.foodAddOn=res;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, foods);
+                    }).catch((error) => { res(error); });
+                }
+            });
+        } else res('Menu Id was not provided');
     }
     createFood(food, res) {
         if (food) {

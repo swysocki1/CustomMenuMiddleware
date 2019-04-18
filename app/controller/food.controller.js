@@ -6,7 +6,7 @@ class FoodController extends Controller {
         this.foodAddOnManager = foodAddOnManager;
     }
     loadRoutes() {
-        this.router.get('/getById/:id', (req, res) => {
+        this.router.get('/:id', (req, res) => {
             try {
                 this.foodManager.getFoodById(req.params.id, (reqErr, reqRes) => {
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);

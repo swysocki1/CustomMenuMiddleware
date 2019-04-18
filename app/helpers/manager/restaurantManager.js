@@ -1,7 +1,26 @@
 class RestaurantManager {
-    constructor(mysqlRestaurant, authentication) {
+    constructor(mysqlRestaurant, authentication, menuManager) {
         this.mysqlRestaurant = mysqlRestaurant;
         this.authentication = authentication;
+        this.menuManager = menuManager;
+    }
+    getRestaurantById(id, res) {
+        if (id) {
+            this.mysqlRestaurant.getRestaurantById(id, (getRestaurantErr, restaurant) => {
+                if (getRestaurantErr) res(getRestaurantErr);
+                else {
+                    if (restaurant) {
+                        this.menuManager.getMenuByRestaurantId(restaurant.id, (err, menus) => {
+                            if (err) res(err);
+                            else {
+                                restaurant.menus = menus;
+                                res(err, restaurant);
+                            }
+                        })
+                    } else res('Menu was not found');
+                }
+            });
+        } else res('Menu Id was not provided');
     }
     createRestaurant(restaurant, res) {
         if (restaurant) {

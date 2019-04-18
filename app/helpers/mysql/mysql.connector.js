@@ -12,7 +12,6 @@ class MysqlConnector {
 	// }
 	connect(res) {
 		if (!this.isConnected()) {
-            console.log('connecting');
 			const hostname = process.env.MYSQL_HOSTNAME;
 			const username = process.env.MYSQL_USERNAME;
 			const password = process.env.MYSQL_PASSWORD;
@@ -25,7 +24,6 @@ class MysqlConnector {
 				connectTimeout: this.timeout
 			}).then((client) => {
 				this.client = client;
-				console.log('connected');
 				res(null, client);
 			}).catch((connectionError) => {
 				res(connectionError);
@@ -60,6 +58,7 @@ class MysqlConnector {
                         if (err) {
                             reject(err);
                         } else {
+                        	// console.log('query Response: ', response);
                             resolve(response);
                         }
                     });

@@ -11,6 +11,15 @@ class MysqlFoodAddOn extends MysqlConnector {
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
+    getFoodAddOnByFoodId(food, res) {
+        const query = `SELECT * from addons ao JOIN food_addon fao ON ao.id=fao.addon where fao.food=${food}`;
+        this.query(query, this.timeout).then( (queryRes) => {
+            if (queryRes && queryRes.length > 0)
+                res(null, queryRes);
+            else
+                res(null, []);
+        }).catch(queryError => { res(queryError); });
+    }
     createFoodAddOn(food, foodAddOn, res) {
         const query = `insert into foodAddOn (food, name, description) values (${food}, '${foodAddOn.name}', '${foodAddOn.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {

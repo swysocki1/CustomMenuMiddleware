@@ -1,12 +1,12 @@
 const Controller = require('./controller');
 class MenuSectionController extends Controller {
     constructor(app, errorHandler, menuSectionManager, foodAddOnManager) {
-        super(app, errorHandler, '/menu/section');
+        super(app, errorHandler, '/menu-section');
         this.menuSectionManager = menuSectionManager;
         this.foodAddOnManager = foodAddOnManager;
     }
     loadRoutes() {
-        this.router.get('/getById/:id', (req, res) => {
+        this.router.get('/:id', (req, res) => {
             try {
                 this.menuSectionManager.getMenuSectionById(req.params.id, (reqErr, reqRes) => {
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);

@@ -5,7 +5,7 @@ class UserController extends Controller {
         this.authentication = authentication;
     }
     loadRoutes() {
-        this.router.get('/getById/:id', (req, res) => {
+        this.router.get('/:id', (req, res) => {
             try {
                 this.authentication.getUserById(req.params.id, (reqErr, reqRes) => {
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);

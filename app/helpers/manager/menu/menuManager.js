@@ -1,6 +1,55 @@
 class MenuManager {
-    constructor(mysqlMenu) {
+    constructor(mysqlMenu, menuSectionManager) {
         this.mysqlMenu = mysqlMenu;
+        this.menuSectionManager = menuSectionManager;
+    }
+    // getMenuById(id, res) {
+    //     if (id) {
+    //         this.mysqlMenu.getMenuById(id, (err, menu) => {
+    //             res(err, result);
+    //         });
+    //     } else res('Menu Id Not Provided');
+    // }
+
+    getMenuById(menuId, res) {
+        if (menuId) {
+            this.mysqlMenu.getMenuById(menuId, (getMenuErr, menu) => {
+                if (getMenuErr) res(getMenuErr);
+                else {
+                    if (menu) {
+                        this.menuSectionManager.getMenuSectionsByMenuId(menu.id, (err, menuSections) => {
+                            if (err) res(err);
+                            else {
+                                menu.menuSections = menuSections;
+                                res(err, menu);
+                            }
+                        })
+                    } else res('Menu was not found');
+                }
+            });
+        } else res('Menu Id was not provided');
+    }
+    getMenuByRestaurantId(restaurantId, res) {
+        if (restaurantId) {
+            this.mysqlMenu.getMenuSectionsByRestaurantIdId(restaurantId, (getMenuErr, menus) => {
+                if (getMenuErr) res(getMenuErr);
+                else {
+                    Promise.all(menus.map((menu) => {
+                        return new Promise((resolve, reject) => {
+                            this.menuSectionManager.getMenuSectionsByMenuId(menu.id, (err, res) => {
+                                if (err) reject(err);
+                                else {
+                                    menu.mwnuSections=res;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, menus);
+                    }).catch((error) => { res(error); });
+                }
+            });
+        } else res('Menu Id was not provided');
     }
     createMenu(menu, res) {
         if (menu) {

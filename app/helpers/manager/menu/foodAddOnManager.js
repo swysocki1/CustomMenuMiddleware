@@ -2,6 +2,13 @@ class FoodAddOnManager {
     constructor(mysqlFoodAddOn) {
         this.mysqlFoodAddOn = mysqlFoodAddOn;
     }
+    getFoodAddOnByFoodId(foodId, res) {
+        if (foodId) {
+            this.mysqlFoodAddOn.getFoodAddOnByFoodId(foodId, (getFoodAddOnErr, foodAddOns) => {
+                res(getFoodAddOnErr, foodAddOns);
+            });
+        } else res('Menu Id was not provided');
+    }
     createFoodAddOn(foodAddOn, res) {
         if (foodAddOn) {
             const missingFields = [];

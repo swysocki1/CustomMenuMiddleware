@@ -1,9 +1,18 @@
 const MysqlConnector = require('./mysql.connector');
 
 class MysqlFood extends MysqlConnector {
-    getFoodsByName(restaurant, food, res) {
+    getFoodsByName(menuSection, food, res) {
         let query = `SELECT * from food where name like '%${food}%'`;
-        if (restaurant) query += ` AND restaurant=${restaurant}`;
+        if (restaurant) query += ` AND menuSection=${restaurant}`;
+        this.query(query, this.timeout).then( (queryRes) => {
+            if (queryRes && queryRes.length > 0)
+                res(null, queryRes);
+            else
+                res(null, []);
+        }).catch(queryError => { res(queryError); });
+    }
+    getFoodByMenuSectionId(menuSection, res) {
+        const query = `SELECT * from food f JOIN food_in_section fis ON f.id=fis.food where fis.section=${menuSection}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
                 res(null, queryRes);
@@ -32,7 +41,7 @@ class MysqlFood extends MysqlConnector {
             if (foods && foods.length > 0)
                 res(null, foods[0]);
             else
-                res(null, null);
+                res(null, []);
         }).catch(queryError => { res(queryError); });
     }
     updateFood(food, res) {

@@ -1,6 +1,52 @@
 class MenuSectionManager {
-    constructor(mysqlMenuSection) {
+    constructor(mysqlMenuSection, foodAddOnManager, foodManager) {
         this.mysqlMenuSection = mysqlMenuSection;
+        this.foodAddOnManager = foodAddOnManager;
+        this.foodManager = foodManager;
+    }
+    getMenuSectionById(id, res) {
+        if (id) {
+            this.mysqlMenuSection.getMenuSectionsById(id, (getMenuSectionErr, menuSections) => {
+                if (getMenuSectionErr) res(getMenuSectionErr);
+                else {
+                    Promise.all(menuSections.map((ms) => {
+                        return new Promise((resolve, reject) => {
+                            this.foodManager.getFoodByMenuSectionId(ms.id, (err, res) => {
+                                if (err) reject(err);
+                                else {
+                                    ms.food=res;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, menuSections);
+                    }).catch((error) => { res(error); });
+                }
+            });
+        } else res('Menu Id was not provided');
+    }
+    getMenuSectionsByMenuId(menuId, res) {
+        if (menuId) {
+            this.mysqlMenuSection.getMenuSectionsByMenuId(menuId, (getMenuSectionErr, menuSections) => {
+                if (getMenuSectionErr) res(getMenuSectionErr);
+                else {
+                    Promise.all(menuSections.map((ms) => {
+                        return new Promise((resolve, reject) => {
+                            this.foodManager.getFoodByMenuSectionId(ms.id, (err, res) => {
+                                if (err) reject(err);
+                                else {
+                                    ms.food=res;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, menuSections);
+                    }).catch((error) => { res(error); });
+                }
+            });
+        } else res('Menu Id was not provided');
     }
     createMenuSection(menuSection, res) {
         if (menuSection) {

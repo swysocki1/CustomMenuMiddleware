@@ -11,6 +11,15 @@ class MysqlMenu extends MysqlConnector {
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
+    getMenuSectionsByRestaurantIdId(restaurantId, res) {
+        const query = `SELECT * from menu where restaurant=${restaurantId}`;
+        this.query(query, this.timeout).then( (queryRes) => {
+            if (queryRes && queryRes.length > 0)
+                res(null, queryRes);
+            else
+                res(null, []);
+        }).catch(queryError => { res(queryError); });
+    }
     createMenu(restaurant, menu, res) {
         const query = `insert into menu (restaurant, name, description) values (${restaurant}, '${menu.name}', '${menu.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {

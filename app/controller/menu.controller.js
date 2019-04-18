@@ -5,7 +5,7 @@ class MenuController extends Controller {
         this.menuManager = menuManager;
     }
     loadRoutes() {
-        this.router.get('/getById/:id', (req, res) => {
+        this.router.get('/:id', (req, res) => {
             try {
                 this.menuManager.getMenuById(req.params.id, (reqErr, reqRes) => {
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
