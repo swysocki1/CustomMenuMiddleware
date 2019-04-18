@@ -31,6 +31,131 @@
           }
         }
       }
+    },
+    "/restaurant/{restaurantId}": {
+      "get": {
+        "summary": "",
+        "description": "Retrieve Restaurant Object by ID.",
+        "parameters": [
+          {
+            "name": "restaurantId",
+            "in": "path",
+            "description": "ID of Restaurant to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/{menuId}": {
+      "get": {
+        "summary": "",
+        "description": "Retrieve Menu Object by ID.",
+        "parameters": [
+          {
+            "name": "menuId",
+            "in": "path",
+            "description": "ID of Menu to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu-section/{menuSectionId}": {
+      "get": {
+        "summary": "",
+        "description": "Retrieve Menu Section Object by ID.",
+        "parameters": [
+          {
+            "name": "menuSectionId",
+            "in": "path",
+            "description": "ID of Menu Section to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/food/{foodId}": {
+      "get": {
+        "summary": "",
+        "description": "Retrieve Food Object by ID.",
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "description": "ID of Food to return",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
+
