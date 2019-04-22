@@ -6,15 +6,59 @@
     "description": "A simple API used to build customized Menu's for local restaurants."
   },
   "schemes": [
-    "https"
+    "http"
   ],
-  "host": "xivw9git3l.execute-api.us-east-1.amazonaws.com/prod",
+  "host": "localhost:4201",
   "basePath": "",
   "paths": {
     "/ping": {
+      "tags":[
+        "Test"
+      ],
       "get": {
-        "summary": "",
+        "summary": "Test Connection to Server",
         "description": "Send a ping to test connecting to server.",
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "JSON",
+              "items": {
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/authenticate": {
+      "tags":[
+        "Login"
+      ],
+      "post": {
+        "summary": "Test Connection to Server",
+        "description": "Send a ping to test connecting to server.",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "description": "Username & Password Authentication",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Connection",
@@ -34,7 +78,10 @@
     },
     "/restaurant/{restaurantId}": {
       "get": {
-        "summary": "",
+        "tags":[
+          "Restaurant"
+        ],
+        "summary": "Get Restaurant by ID",
         "description": "Retrieve Restaurant Object by ID.",
         "parameters": [
           {
@@ -50,13 +97,9 @@
           "200": {
             "description": "Successful Connection",
             "schema": {
-              "type": "JSON",
+              "type": "array",
               "items": {
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/definitions/Restaurant"
               }
             }
           }
@@ -65,7 +108,10 @@
     },
     "/menu/{menuId}": {
       "get": {
-        "summary": "",
+        "tags":[
+          "Menu"
+        ],
+        "summary": "Get Menu by ID",
         "description": "Retrieve Menu Object by ID.",
         "parameters": [
           {
@@ -81,13 +127,46 @@
           "200": {
             "description": "Successful Connection",
             "schema": {
-              "type": "JSON",
+              "type": "array",
               "items": {
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/definitions/Menu"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/menu/create":{
+      "post":{
+        "tags":[
+          "Menu"
+        ],
+        "summary":"Create New Menu",
+        "description":"Create a new menu object by passing the full menu object JSON in the body",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"body",
+            "name":"body",
+            "description":"Menu Object needed to be created",
+            "required":true,
+            "schema":{
+              "$ref":"#/definitions/Menu"
+            }
+          }
+        ],
+        "responses":{
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Menu"
               }
             }
           }
@@ -96,7 +175,10 @@
     },
     "/menu-section/{menuSectionId}": {
       "get": {
-        "summary": "",
+        "tags":[
+          "Menu Section"
+        ],
+        "summary": "Get Menu Section by ID",
         "description": "Retrieve Menu Section Object by ID.",
         "parameters": [
           {
@@ -112,13 +194,9 @@
           "200": {
             "description": "Successful Connection",
             "schema": {
-              "type": "JSON",
+              "type": "array",
               "items": {
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/definitions/MenuSection"
               }
             }
           }
@@ -127,7 +205,10 @@
     },
     "/food/{foodId}": {
       "get": {
-        "summary": "",
+        "tags":[
+          "Food"
+        ],
+        "summary": "Get Food by ID",
         "description": "Retrieve Food Object by ID.",
         "parameters": [
           {
@@ -143,17 +224,199 @@
           "200": {
             "description": "Successful Connection",
             "schema": {
-              "type": "JSON",
+              "type": "array",
               "items": {
-                "properties": {
-                  "message": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/definitions/Food"
               }
             }
           }
         }
+      }
+    }
+  },
+  "definitions": {
+    "Login": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "example": "testuser1"
+        },
+        "password": {
+          "type": "string",
+          "example": "Test!123"
+        }
+      },
+      "xml": {
+        "name": "Login"
+      }
+    },
+    "Restaurant": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example": "Italian Classics"
+        },
+        "description": {
+          "type": "string",
+          "example": "The Best Food in Town"
+        },
+        "menu": {
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/Menu"
+          }
+        }
+      },
+      "xml": {
+        "name": "Restaurant"
+      }
+    },
+    "Menu": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "restaurant": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example": "Brunch"
+        },
+        "description": {
+          "type": "string",
+          "example": "Saturday & Sunday from 8am - 2pm"
+        },
+        "menuSections": {
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/MenuSection"
+          }
+        }
+      },
+      "xml": {
+        "name": "Menu"
+      }
+    },
+    "MenuSection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "menu": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example": "Today's Specials"
+        },
+        "description": {
+          "type": "string",
+          "example": "These specials will not be around long. Get them while you can."
+        },
+        "displayOrder": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "foods": {
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/Food"
+          }
+        },
+        "foodAddOns": {
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/AddOn"
+          }
+        }
+      },
+      "xml": {
+        "name": "MenuSection"
+      }
+    },
+    "Food": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "menuSection": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example": "Spaghetti & Marinara"
+        },
+        "description": {
+          "type": "string",
+          "example": "An Italian Classic with our very own homemade sauce"
+        },
+        "imgSrc": {
+          "type": "string",
+          "example": ""
+        },
+        "price": {
+          "type": "number",
+          "format": "double",
+          "example": 8.99
+        },
+        "foodAddOns": {
+          "type": "array",
+          "items":{
+            "$ref":"#/definitions/AddOn"
+          }
+        }
+      },
+      "xml": {
+        "name": "Food"
+      }
+    },
+    "AddOn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "food": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "type": "string",
+          "example":"Chips & Salsa"
+        },
+        "description": {
+          "type": "string",
+          "example":"Serves 2 - 4"
+        },
+        "imgSrc": {
+          "type": "string",
+          "example": ""
+        },
+        "price": {
+          "type": "number",
+          "format": "double",
+          "example": 5.99
+        }
+      },
+      "xml": {
+        "name": "AddOn"
       }
     }
   }

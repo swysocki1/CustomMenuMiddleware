@@ -9,6 +9,7 @@ class AuthenticationController extends Controller {
             try {
                 console.log('authenticate');
                 this.authentication.authenticate(req.body.username, req.body.password, (authErr, authRes) => {
+                    if (authRes) delete authRes.password;
                     if (authErr) {
                         if (authErr === 'INVALID LOGIN')
                             this.errorHandler.invalidLogin(authErr, req, res);

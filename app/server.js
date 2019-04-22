@@ -10,12 +10,14 @@ const MenuSectionManager = require('./helpers/manager/menu/menuSectionManager');
 const FoodManager = require('./helpers/manager/menu/foodManager');
 const FoodAddOnManager = require('./helpers/manager/menu/foodAddOnManager');
 
+const MysqlConnector = require('./helpers/mysql/mysql.connector');
 const MysqlUser = require('./helpers/mysql/mysql.user');
 const MysqlRestaurant = require('./helpers/mysql/mysql.restaurant');
 const MysqlMenu = require('./helpers/mysql/mysql.menu');
 const MysqlMenuSection = require('./helpers/mysql/mysql.menuSection');
 const MysqlFood = require('./helpers/mysql/mysql.food');
 const MysqlFoodAddOn = require('./helpers/mysql/mysql.foodAddOn');
+
 const Controller = require('./controller/controller');
 const AuthenticationController = require('./controller/authentication.controller');
 const UserController = require('./controller/user.controller');
@@ -26,19 +28,21 @@ const FoodController = require('./controller/food.controller');
 
 class Server {
     constructor() {
-        this.mysqlUser = new MysqlUser();
-        this.mysqlRestaurant = new MysqlRestaurant();
-        this.mysqlMenu = new MysqlMenu();
-        this.mysqlMenuSection = new MysqlMenuSection();
-        this.mysqlFood = new MysqlFood();
-        this.mysqlFoodAddOn = new MysqlFoodAddOn();
+        const mysql = new MysqlConnector();
+        this.mysqlHandler = mysql.getClient();
+        this.mysqlUser = new MysqlUser(this.mysqlHandler);
+        this.mysqlRestaurant = new MysqlRestaurant(this.mysqlHandler);
+        this.mysqlMenu = new MysqlMenu(this.mysqlHandler);
+        this.mysqlMenuSection = new MysqlMenuSection(this.mysqlHandler);
+        this.mysqlFood = new MysqlFood(this.mysqlHandler);
+        this.mysqlFoodAddOn = new MysqlFoodAddOn(this.mysqlHandler);
         this.authentication = new Authentication(this.mysqlUser);
         this.foodAddOnManager = new FoodAddOnManager(this.mysqlFoodAddOn);
         this.foodManager = new FoodManager(this.mysqlFood, this.foodAddOnManager);
         this.menuSectionManager = new MenuSectionManager(this.mysqlMenuSection, this.foodAddOnManager, this.foodManager);
         this.menuManager = new MenuManager(this.mysqlMenu, this.menuSectionManager);
         this.restaurantManager = new RestaurantManager(this.mysqlRestaurant, this.authentication, this.menuManager);
-        this.errorHandler = new ErrorHandler([this.mysqlUser, this.mysqlRestaurant, this.mysqlMenu, this.mysqlMenuSection, this.mysqlFood, this.mysqlFoodAddOn]);
+        this.errorHandler = new ErrorHandler([mysql]);
         this.app = express();
         this.startServer();
         this.loadRoutes();

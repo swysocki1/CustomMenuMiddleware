@@ -61,8 +61,29 @@ class MenuSectionManager {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
                 Promise.all([this.menuSectionExists(menuSection)]).then(() => {
-                    this.mysqlMenuSection.createMenuSection(menuSection, (queryError, queryRes) => {
-                        res(queryError, queryRes);
+                    this.mysqlMenuSection.createMenuSection(menuSection.menu, menuSection, (queryError, newMenuSection) => {
+                        newMenuSection.foods = menuSection.foods;
+                        menuSection = newMenuSection;
+                        if (menuSection.foods && menuSection.foods.length > 0) {
+                            Promise.all(menuSection.foods.map(food => {
+                                food.menuSection = menuSection.id;
+                                return new Promise((resolve, reject) => {
+                                    this.foodManager.createFood(food, (createFoodErr, newFood) => {
+                                        if (createFoodErr) reject(createFoodErr);
+                                        else {
+                                            food = newFood;
+                                            resolve(newFood);
+                                        }
+                                    });
+                                });
+                            })).then((foods) => {
+                                menuSection.foods = foods;
+                                res(null, menuSection);
+                            }).catch((error) => { res(error); });
+                        } else {
+                            menuSection.foods = [];
+                            res(queryError, menuSection);
+                        }
                     });
                 }).catch((error) => { res(error); });
             }
@@ -114,11 +135,12 @@ class MenuSectionManager {
     }
     menuSectionExists(menuSection) {
         return new Promise((resolve, reject) => {
-            this.mysqlMenuSection.getMenuSectionById(menuSection, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('MenuSection Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (menuSection && menuSection.id) {
+                this.mysqlMenuSection.getMenuSectionById(menuSection.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else resolve(queryRes);
+                });
+            } else resolve();
         });
     }
 }

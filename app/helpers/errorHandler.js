@@ -23,9 +23,9 @@ class ErrorHandler {
     internalServerError(err, req, res, next) {
         console.error(err);
         this.disconnectMysql().then(() => {
-            if (err.message) {
+            if (err) {
                 res.status(400);
-                res.json({status: 'error', message: err.message});
+                res.json({status: 'error', message: err && err.message ? err.message : err});
             } else this.catchAllError(err, req, res, next);
         });
     }
@@ -37,10 +37,12 @@ class ErrorHandler {
         });
     }
     disconnectMysql() {
-	    return new Promise.all(this.mysqlList.map(async mysql => {
-	        mysql.disconnect((message, error) => {
-	            if (error) reject(error);
-	            else resolve(message);
+	    return Promise.all(this.mysqlList.map(mysql => {
+	        return new Promise((resolve, reject) => {
+                mysql.disconnect((message, error) => {
+                    if (error) reject(error);
+                    else resolve(message);
+                });
             });
         }));
     }

@@ -75,11 +75,12 @@ class FoodAddOnManager {
     }
     foodAddOnExists(foodAddOn) {
         return new Promise((resolve, reject) => {
-            this.mysqlFoodAddOn.getFoodAddOnById(foodAddOn, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('FoodAddOn Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (foodAddOn && foodAddOn.id) {
+                this.mysqlFoodAddOn.getFoodAddOnById(foodAddOn.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else resolve(queryRes);
+                });
+            } else resolve();
         });
     }
 }

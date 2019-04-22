@@ -21,7 +21,7 @@ class MysqlFoodAddOn extends MysqlConnector {
         }).catch(queryError => { res(queryError); });
     }
     createFoodAddOn(food, foodAddOn, res) {
-        const query = `insert into foodAddOn (food, name, description) values (${food}, '${foodAddOn.name}', '${foodAddOn.description}');`;
+        const query = `insert into foodAddOn (food, name, img_src, description) values (${food}, '${foodAddOn.name}', '${foodAddOn.imgSrc}',  '${foodAddOn.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {
             this.getFoodAddOnByName(food, foodAddOn.name, (getFoodErr, foodRes) => {
                 res(getFoodErr, foodRes);
@@ -56,6 +56,7 @@ class MysqlFoodAddOn extends MysqlConnector {
                             let query = `UPDATE foodAddOn SET `;
                             if (foodAddOn.name) query += `name = '${foodAddOn.name}' `;
                             if (foodAddOn.description) query += `description = '${foodAddOn.description}' `;
+                            if (foodAddOn.imgSrc) query += `img_src = '${foodAddOn.imgSrc}' `;
                             query += 'WHERE id = foodAddOn.id';
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
@@ -75,7 +76,8 @@ class MysqlFoodAddOn extends MysqlConnector {
                         if(!getFoodAddOnByIdRes) {
                             res('FoodAddOn Does Not Exist');
                         } else {
-                            let query = `UPDATE foodAddOn SET name = '${foodAddOn.name}' description = '${foodAddOn.description}' WHERE id = ${foodAddOn.id}`;
+                            let query = `UPDATE foodAddOn SET name = '${foodAddOn.name}' description = '${foodAddOn.description}'` +
+                             ` imgSrc = '${foodAddOn.imgSrc}' WHERE id = ${foodAddOn.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });

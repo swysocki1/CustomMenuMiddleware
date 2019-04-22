@@ -6,32 +6,36 @@ class MysqlMenu extends MysqlConnector {
         if (restaurant) query += ` AND restaurant=${restaurant}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
     getMenuSectionsByRestaurantIdId(restaurantId, res) {
-        const query = `SELECT * from menu where restaurant=${restaurantId}`;
+        let query = `SELECT * from menu`;
+        if (restaurantId) query += ` where restaurant=${restaurantId}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
-    createMenu(restaurant, menu, res) {
-        const query = `insert into menu (restaurant, name, description) values (${restaurant}, '${menu.name}', '${menu.description}');`;
+    createMenu(menu, res) {
+        if (!menu.restaurant) menu.restaurant = null;
+        if (!menu.name) menu.name = null;
+        if (!menu.description) menu.description = null;
+        const query = `insert into menu (restaurant, name, description) values (${menu.restaurant}, '${menu.name}', '${menu.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {
-            this.getMenuByName(restaurant, menu.name, (getRestaurantErr, restaurantRes) => {
-                res(getRestaurantErr, restaurantRes);
+            this.getMenuById(queryRes.insertId, (getRestaurantErr, restaurantRes) => {
+                res(getRestaurantErr, {... restaurantRes});
             });
         }).catch(queryError => { res(queryError); });
     }
-    getMenuByName(name, res) {
-        this.getMenusByName(name, (queryError, menus) => {
+    getMenuByName(restaurant, name, res) {
+        this.getMenusByName(restaurant, name, (queryError, menus) => {
             if (queryError) res(queryError);
-            else if (menus && menus.length > 0) res(null, menus[0]);
+            else if (menus && menus.length > 0) res(null, {... menus[0]});
             else res('No Menus Found');
         })
     }
@@ -39,7 +43,7 @@ class MysqlMenu extends MysqlConnector {
         const query = `SELECT * from menu where id=${id}`;
         this.query(query, this.timeout).then( (menus) => {
             if (menus && menus.length > 0)
-                res(null, menus[0]);
+                res(null, {... menus[0]});
             else
                 res(null, null);
         }).catch(queryError => { res(queryError); });
@@ -54,6 +58,7 @@ class MysqlMenu extends MysqlConnector {
                             res('Menu Does Not Exist');
                         } else {
                             let query = `UPDATE menu SET `;
+                            if (menu.restaurant) query += `restaurant = '${menu.restaurant}' `;
                             if (menu.name) query += `name = '${menu.name}' `;
                             if (menu.description) query += `description = '${menu.description}' `;
                             query += 'WHERE id = menu.id';
@@ -75,7 +80,10 @@ class MysqlMenu extends MysqlConnector {
                         if(!getMenuByIdRes) {
                             res('Menu Does Not Exist');
                         } else {
-                            let query = `UPDATE menu SET name = '${menu.name}' description = '${menu.description}' WHERE id = ${menu.id}`;
+                            if (!menu.restaurant) menu.restaurant = null;
+                            if (!menu.name) menu.name = null;
+                            if (!menu.description) menu.description = null;
+                            let query = `UPDATE menu SET restaurant = ${menu.restaurant} name = '${menu.name}' description = '${menu.description}' WHERE id = ${menu.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });

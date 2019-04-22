@@ -63,9 +63,31 @@ class MenuManager {
             if (missingFields.length > 0) {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
-                Promise.all([this.menuExists(menu)]).then(() => {
-                    this.mysqlMenu.createMenu(menu, (queryError, queryRes) => {
-                        res(queryError, queryRes);
+                Promise.all([this.menuExists(menu.id)]).then(() => {
+                    this.mysqlMenu.createMenu(menu, (queryError, newMenu) => {
+                        if (queryError) res(queryError);
+                        newMenu.menuSections = menu.menuSections;
+                        menu = newMenu;
+                        if (menu.menuSections && menu.menuSections.length > 0) {
+                            Promise.all(menu.menuSections.map(menuSection => {
+                                return new Promise((resolve, reject) => {
+                                    menuSection.menu = menu.id;
+                                    this.menuSectionManager.createMenuSection(menuSection, (createMenuSectionErr, newMenuSection) => {
+                                        if (createMenuSectionErr) reject(createMenuSectionErr);
+                                        else {
+                                            menuSection = newMenuSection;
+                                            resolve(menuSection);
+                                        }
+                                    });
+                                });
+                            })).then((menuSections) => {
+                                menu.menuSections = menuSections;
+                                res(null, menu);
+                            }).catch((error) => { res(error); });
+                        } else {
+                            menu.menuSections = [];
+                            res(queryError, menu);
+                        }
                     });
                 }).catch((error) => { res(error); });
             }
@@ -117,11 +139,14 @@ class MenuManager {
     }
     menuExists(menu) {
         return new Promise((resolve, reject) => {
-            this.mysqlMenu.getMenuById(menu, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('Menu Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (menu && menu.id) {
+                this.mysqlMenu.getMenuById(menu.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else resolve(queryRes);
+                });
+            } else {
+                resolve();
+            }
         });
     }
 }

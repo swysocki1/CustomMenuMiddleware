@@ -54,8 +54,33 @@ class FoodManager {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
                 Promise.all([this.foodExists(food)]).then(() => {
-                    this.mysqlFood.createFood(food, (queryError, queryRes) => {
-                        res(queryError, queryRes);
+                    this.mysqlFood.createFood(food, (queryError, newFood) => {
+                        if (queryError) res(queryError);
+                        else {
+                            newFood.foodAddOns = food.foodAddOns;
+                            food = newFood;
+                            if (food.foodAddOns && food.foodAddOns.length > 0) {
+                                Promise.all(food.foodAddOns.map(foodAddOn => {
+                                    return new Promise((resolve, reject) => {
+                                        this.foodAddOnManager.createFoodAddOn(foodAddOn, (createFoodAddOnErr, newFoodAddOn) => {
+                                            if (createFoodAddOnErr) reject(createFoodAddOnErr);
+                                            else {
+                                                foodAddOn = newFoodAddOn;
+                                                resolve(foodAddOn);
+                                            }
+                                        });
+                                    });
+                                })).then((foodAddOns) => {
+                                    food.foodAddOns = foodAddOns;
+                                    res(null, food);
+                                }).catch((error) => {
+                                    res(error);
+                                });
+                            } else {
+                                food.foodAddOns = [];
+                                res(queryError, food);
+                            }
+                        }
                     });
                 }).catch((error) => { res(error); });
             }
@@ -107,11 +132,12 @@ class FoodManager {
     }
     foodExists(food) {
         return new Promise((resolve, reject) => {
-            this.mysqlFood.getFoodById(food, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('Food Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (food && food.id) {
+                this.mysqlFood.getFoodById(food.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else resolve(queryRes);
+                });
+            } else resolve();
         });
     }
 }

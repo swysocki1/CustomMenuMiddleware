@@ -8,6 +8,7 @@ class UserController extends Controller {
         this.router.get('/:id', (req, res) => {
             try {
                 this.authentication.getUserById(req.params.id, (reqErr, reqRes) => {
+                    if (reqRes) delete reqRes.password;
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
                 });
             } catch(error) {
@@ -17,6 +18,7 @@ class UserController extends Controller {
         this.router.post('/create', (req, res) => {
             try {
                 this.authentication.createUser(req.body, (reqErr, reqRes) => {
+                    if (reqRes) delete reqRes.password;
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
                 });
             } catch(error) {
@@ -26,6 +28,7 @@ class UserController extends Controller {
         this.router.post('/update', (req, res) => {
             try {
                 this.authentication.updateUser(req.body, (reqErr, reqRes) => {
+                    if (reqRes) delete reqRes.password;
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
                 });
             } catch(error) {
@@ -35,6 +38,7 @@ class UserController extends Controller {
         this.router.post('/upsert', (req, res) => {
             try {
                 this.authentication.upsertUser(req.body, (reqErr, reqRes) => {
+                    if (reqRes) delete reqRes.password;
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
                 });
             } catch(error) {
@@ -44,6 +48,7 @@ class UserController extends Controller {
         this.router.post('/delete', (req, res) => {
             try {
                 this.authentication.deleteUser(req.body, (reqErr, reqRes) => {
+                    if (reqRes) delete reqRes.password;
                     this.errorHandler.genericResponse(reqErr, reqRes, req, res);
                 });
             } catch(error) {

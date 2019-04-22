@@ -3,10 +3,10 @@ const MysqlConnector = require('./mysql.connector');
 class MysqlFood extends MysqlConnector {
     getFoodsByName(menuSection, food, res) {
         let query = `SELECT * from food where name like '%${food}%'`;
-        if (restaurant) query += ` AND menuSection=${restaurant}`;
+        if (menuSection) query += ` AND menuSection=${menuSection}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
@@ -15,31 +15,34 @@ class MysqlFood extends MysqlConnector {
         const query = `SELECT * from food f JOIN food_in_section fis ON f.id=fis.food where fis.section=${menuSection}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
-    createFood(restaurant, food, res) {
-        const query = `insert into food (restaurant, name, description) values (${restaurant}, '${food.name}', '${food.description}');`;
+    createFood(food, res) {
+        if (!food.name) food.name = null;
+        if (!food.description) food.description = null;
+        if (!food.imgSrc) food.imgSrc = '';
+        const query = `insert into food (name, img_src, price, description) values ('${food.name}', '${food.imgSrc}', ${food.price}, '${food.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {
-            this.getFoodByName(restaurant, food.name, (getRestaurantErr, restaurantRes) => {
-                res(getRestaurantErr, restaurantRes);
+            this.getFoodById(queryRes.insertId, (createFoodErr, createFoodResaurantRes) => {
+                if (createFoodErr) res(createFoodErr);
+                else {
+                    // res(getRestaurantErr, restaurantRes);
+                    this.addMenuSectionRelation(food.menuSection, queryRes.insertId, (relErr, relRes) => {
+                        createFoodResaurantRes.menuSection = food.menuSection;
+                        res(relErr, {... createFoodResaurantRes});
+                    });
+                }
             });
         }).catch(queryError => { res(queryError); });
-    }
-    getFoodByName(name, res) {
-        this.getFoodsByName(name, (queryError, foods) => {
-            if (queryError) res(queryError);
-            else if (foods && foods.length > 0) res(null, foods[0]);
-            else res('No Foods Found');
-        })
     }
     getFoodById(id, res) {
         const query = `SELECT * from food where id=${id}`;
         this.query(query, this.timeout).then( (foods) => {
             if (foods && foods.length > 0)
-                res(null, foods[0]);
+                res(null, {... foods[0]});
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
@@ -56,6 +59,7 @@ class MysqlFood extends MysqlConnector {
                             let query = `UPDATE food SET `;
                             if (food.name) query += `name = '${food.name}' `;
                             if (food.description) query += `description = '${food.description}' `;
+                            if (food.imgSrc) query += `img_src = '${food.imgSrc}' `;
                             query += 'WHERE id = food.id';
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
@@ -75,7 +79,7 @@ class MysqlFood extends MysqlConnector {
                         if(!getFoodByIdRes) {
                             res('Food Does Not Exist');
                         } else {
-                            let query = `UPDATE food SET name = '${food.name}' description = '${food.description}' WHERE id = ${food.id}`;
+                            let query = `UPDATE food SET name = '${food.name}' description = '${food.description}' img_src = '${food.imgSrc}' WHERE id = ${food.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);
                             }).catch((error) => { res(error); });
@@ -96,6 +100,17 @@ class MysqlFood extends MysqlConnector {
             } else res('No Food id Provided');
         }
         else { res('No Food Provided'); }
+    }
+    addMenuSectionRelation(menuSection, food, res) {
+        if (menuSection) {
+            if (food) {
+                const query = `INSERT INTO food_in_section (section, food) values ('${menuSection}', '${food}')`;
+                this.query(query, this.timeout).then((queryResult) => {
+                    res(null, queryResult);
+                }).catch((error) => { res(error); });
+            } else res('No Food Provided In Relation');
+        }
+        else { res('No MenuSection Provided In Relation'); }
     }
 }
 module.exports = MysqlFood;

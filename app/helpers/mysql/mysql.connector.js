@@ -1,15 +1,17 @@
-// import {Logger} from './logger';
-// import {SecretManager} from './secretManager';
-const UserQuery = require('./mysql.user');
 class MysqlConnector {
 	// private secretManager;
-	constructor() {
+	constructor(client) {
 		// this.connect();
 		this.timeout = 3000;
+		if (client)
+			this.client = client;
 	}
 	// constructor(secretManager: SecretManager) {
 	// 	this.secretManager = secretManager;
 	// }
+	getClient() {
+		return this.client;
+	}
 	connect(res) {
 		if (!this.isConnected()) {
 			const hostname = process.env.MYSQL_HOSTNAME;
