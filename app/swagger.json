@@ -306,6 +306,43 @@
           }
         }
       }
+    },
+    "/food/update":{
+      "post":{
+        "tags":[
+          "Food"
+        ],
+        "summary":"Update Food",
+        "description":"Update Food object by passing the full Food object JSON in the body",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"body",
+            "name":"body",
+            "description":"Food Object needed to be updated",
+            "required":true,
+            "schema":{
+              "$ref":"#/definitions/Food"
+            }
+          }
+        ],
+        "responses":{
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Food"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {

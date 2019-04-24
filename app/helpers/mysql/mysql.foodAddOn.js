@@ -63,16 +63,23 @@ class MysqlFoodAddOn extends MysqlConnector {
                     if (getFoodAddOnByIdErr) res(getFoodAddOnByIdErr);
                     else {
                         if(!getFoodAddOnByIdRes) {
-                            res('FoodAddOn Does Not Exist');
+                            this.createFoodAddOn(foodAddOn, (createErr, result) => {
+                               res(createErr, result);
+                            });
                         } else {
-                            let query = `UPDATE foodAddOn SET `;
-                            if (foodAddOn.name) query += `name = '${foodAddOn.name}' `;
-                            if (foodAddOn.description) query += `description = '${foodAddOn.description}' `;
-                            if (foodAddOn.imgSrc) query += `img_src = '${foodAddOn.imgSrc}' `;
-                            query += 'WHERE id = foodAddOn.id';
-                            this.query(query, this.timeout).then((res) => {
-                                res(null, res);
-                            }).catch((error) => { res(error); });
+                            const update = [];
+                            let query = `UPDATE addons SET `;
+                            if (foodAddOn.name) update.push(`name = '${foodAddOn.name}'`);
+                            if (foodAddOn.description) update.push(`description = '${foodAddOn.description}'`);
+                            if (foodAddOn.imgSrc) update.push(`img_src = '${foodAddOn.imgSrc}'`);
+                            if (update.length > 0) {
+                                query = query + ` ${update.join(', ')} WHERE id = ${foodAddOn.id}`;
+                                this.query(query, this.timeout).then((result) => {
+                                    res(null, result);
+                                }).catch((error) => {
+                                    res(error);
+                                });
+                            } else res(null, null);
                         }
                     }
                 });
@@ -88,7 +95,7 @@ class MysqlFoodAddOn extends MysqlConnector {
                         if(!getFoodAddOnByIdRes) {
                             res('FoodAddOn Does Not Exist');
                         } else {
-                            let query = `UPDATE foodAddOn SET name = '${foodAddOn.name}' description = '${foodAddOn.description}'` +
+                            let query = `UPDATE addOns SET name = '${foodAddOn.name}' description = '${foodAddOn.description}'` +
                              ` imgSrc = '${foodAddOn.imgSrc}' WHERE id = ${foodAddOn.id}`;
                             this.query(query, this.timeout).then((res) => {
                                 res(null, res);

@@ -50,20 +50,29 @@ class MysqlFood extends MysqlConnector {
     updateFood(food, res) {
         if (food) {
             if (food.id) {
-                this.getFoodById(food.id, (getFoodByIdErr, getFoodByIdRes) => {
-                    if (getFoodByIdErr) res(getFoodByIdErr);
+                this.getFoodById(food.id, (getFoodErr, getFoodRes) => {
+                    if (getFoodErr) res(getFoodErr);
                     else {
-                        if(!getFoodByIdRes) {
-                            res('Food Does Not Exist');
+                        if (!getFoodRes) {
+                            this.createFood(food, (createErr, createRes) => {
+                                res(createErr, createRes);
+                            });
                         } else {
                             let query = `UPDATE food SET `;
-                            if (food.name) query += `name = '${food.name}' `;
-                            if (food.description) query += `description = '${food.description}' `;
-                            if (food.imgSrc) query += `img_src = '${food.imgSrc}' `;
-                            query += 'WHERE id = food.id';
-                            this.query(query, this.timeout).then((res) => {
-                                res(null, res);
-                            }).catch((error) => { res(error); });
+                            const updates = [];
+                            if (food.name) updates.push(`name = '${food.name}'`);
+                            if (food.description) updates.push(`description = '${food.description}'`);
+                            if (food.imgSrc) updates.push(`img_src = '${food.imgSrc}'`);
+                            if (updates.length > 0) {
+                                query = query + `${updates.join(', ')} WHERE id = ${food.id}`;
+                                this.query(query, this.timeout).then((result) => {
+                                    res(null, result);
+                                }).catch((error) => {
+                                    res(error);
+                                });
+                            } else {
+                                res(null, null);
+                            }
                         }
                     }
                 });
