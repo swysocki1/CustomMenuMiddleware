@@ -2,30 +2,42 @@ const MysqlConnector = require('./mysql.connector');
 
 class MysqlFoodAddOn extends MysqlConnector {
     getFoodAddOnsByName(food, foodAddOn, res) {
-        let query = `SELECT * from foodAddOn where name like '%${foodAddOn}%'`;
+        let query = `SELECT ao.*, fao.food, fao.addon from addons ao JOIN food_addon fao ON ao.id=fao.addon ao.name like '%${foodAddOn}%'`;
         if (food) query += ` AND food=${food}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
     getFoodAddOnByFoodId(food, res) {
-        const query = `SELECT * from addons ao JOIN food_addon fao ON ao.id=fao.addon where fao.food=${food}`;
+        const query = `SELECT ao.*, fao.food, fao.addon from addons ao JOIN food_addon fao ON ao.id=fao.addon where fao.food=${food}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
-    createFoodAddOn(food, foodAddOn, res) {
-        const query = `insert into foodAddOn (food, name, img_src, description) values (${food}, '${foodAddOn.name}', '${foodAddOn.imgSrc}',  '${foodAddOn.description}');`;
+    createFoodAddOn(foodAddOn, res) {
+        if (!foodAddOn.name) foodAddOn.name='';
+        if (!foodAddOn.imgSrc) foodAddOn.imgSrc='';
+        if (!foodAddOn.description) foodAddOn.description='';
+        const query = `insert into addons (name, img_src, description) values ('${foodAddOn.name}', '${foodAddOn.imgSrc}',  '${foodAddOn.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {
-            this.getFoodAddOnByName(food, foodAddOn.name, (getFoodErr, foodRes) => {
-                res(getFoodErr, foodRes);
-            });
+            if (!foodAddOn.food) {
+                this.getFoodAddOnById(queryRes.insertId, (createFoodAddOnErr, queryFoodAddon) => {
+                   res(createFoodAddOnErr, queryFoodAddon);
+                });
+            } else {
+                this.addFoodAddOnRelation(foodAddOn.food, queryRes.insertId, (relErr, relRes) => {
+                    this.getFoodAddOnById(queryRes.insertId, (createFoodAddOnErr, queryFoodAddon) => {
+                        queryFoodAddon.food = foodAddOn.food;
+                        res(createFoodAddOnErr, queryFoodAddon);
+                    });
+                });
+            }
         }).catch(queryError => { res(queryError); });
     }
     getFoodAddOnByName(name, res) {
@@ -36,10 +48,10 @@ class MysqlFoodAddOn extends MysqlConnector {
         })
     }
     getFoodAddOnById(id, res) {
-        const query = `SELECT * from foodAddOn where id=${id}`;
+        const query = `SELECT ao.*, fao.food, fao.addon from addons ao JOIN food_addon fao ON ao.id=fao.addon where ao.id=${id}`;
         this.query(query, this.timeout).then( (foodAddOns) => {
             if (foodAddOns && foodAddOns.length > 0)
-                res(null, foodAddOns[0]);
+                res(null, {... foodAddOns[0]});
             else
                 res(null, null);
         }).catch(queryError => { res(queryError); });
@@ -98,6 +110,17 @@ class MysqlFoodAddOn extends MysqlConnector {
             } else res('No FoodAddOn id Provided');
         }
         else { res('No FoodAddOn Provided'); }
+    }
+    addFoodAddOnRelation(food, addOn, res) {
+        if (food) {
+            if (addOn) {
+                const query = `insert into food_addon (food, addon) values ('${food}', '${addOn}')`;
+                this.query(query, this.timeout).then((queryResult) => {
+                    res(null, queryResult);
+                }).catch((error) => { res(error); });
+            } else res('No Food Provided In Relation');
+        }
+        else { res('No AddOn Provided In Relation'); }
     }
 }
 module.exports = MysqlFoodAddOn;

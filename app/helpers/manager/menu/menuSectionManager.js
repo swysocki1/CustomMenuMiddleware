@@ -61,7 +61,7 @@ class MenuSectionManager {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
                 Promise.all([this.menuSectionExists(menuSection)]).then(() => {
-                    this.mysqlMenuSection.createMenuSection(menuSection.menu, menuSection, (queryError, newMenuSection) => {
+                    this.mysqlMenuSection.createMenuSection(menuSection, (queryError, newMenuSection) => {
                         newMenuSection.foods = menuSection.foods;
                         menuSection = newMenuSection;
                         if (menuSection.foods && menuSection.foods.length > 0) {

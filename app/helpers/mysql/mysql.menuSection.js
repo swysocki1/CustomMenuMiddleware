@@ -29,10 +29,15 @@ class MysqlMenuSection extends MysqlConnector {
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
-    createMenuSection(menu, menuSection, res) {
-        const query = `insert into menu_section (menu, name, description, display_order) values (${menu}, '${menuSection.name}', '${menuSection.description}', '${menuSection.displayOrder}');`;
+    createMenuSection(menuSection, res) {
+        if (!menuSection.menu) menuSection.menu = null;
+        if (!menuSection.name) menuSection.name = '';
+        if (!menuSection.description) menuSection.description = '';
+        if (!menuSection.displayOrder) menuSection.displayOrder = null;
+        const query = `insert into menu_section (menu, name, description, display_order) values (${menuSection.menu}, '${menuSection.name}', '${menuSection.description}', ${menuSection.displayOrder});`;
         this.query(query, this.timeout).then( (queryRes) => {
             this.getMenuSectionById(queryRes.insertId, (getMenuErr, menuRes) => {
+                console.log(menuRes);
                 res(getMenuErr, {... menuRes});
             });
         }).catch(queryError => { res(queryError); });

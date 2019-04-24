@@ -6,9 +6,9 @@
     "description": "A simple API used to build customized Menu's for local restaurants."
   },
   "schemes": [
-    "http"
+    "https"
   ],
-  "host": "localhost:4201",
+  "host": "xivw9git3l.execute-api.us-east-1.amazonaws.com/prod",
   "basePath": "",
   "paths": {
     "/ping": {
@@ -203,6 +203,43 @@
         }
       }
     },
+    "/menu-section/create":{
+      "post":{
+        "tags":[
+          "Menu Section"
+        ],
+        "summary":"Create New Menu Section",
+        "description":"Create a new menu object by passing the full menu object JSON in the body",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"body",
+            "name":"body",
+            "description":"Menu Section Object needed to be created",
+            "required":true,
+            "schema":{
+              "$ref":"#/definitions/MenuSection"
+            }
+          }
+        ],
+        "responses":{
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MenuSection"
+              }
+            }
+          }
+        }
+      }
+    },
     "/food/{foodId}": {
       "get": {
         "tags":[
@@ -221,6 +258,43 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Food"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/food/create":{
+      "post":{
+        "tags":[
+          "Food"
+        ],
+        "summary":"Create New Food",
+        "description":"Create a new menu object by passing the full menu object JSON in the body",
+        "consumes":[
+          "application/json"
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "parameters":[
+          {
+            "in":"body",
+            "name":"body",
+            "description":"Food Object needed to be created",
+            "required":true,
+            "schema":{
+              "$ref":"#/definitions/Food"
+            }
+          }
+        ],
+        "responses":{
           "200": {
             "description": "Successful Connection",
             "schema": {
