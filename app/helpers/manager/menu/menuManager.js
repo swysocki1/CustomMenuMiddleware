@@ -20,7 +20,7 @@ class MenuManager {
                         this.menuSectionManager.getMenuSectionsByMenuId(menu.id, (err, menuSections) => {
                             if (err) res(err);
                             else {
-                                menu.menuSections = menuSections;
+                                menu.sections = menuSections;
                                 res(err, menu);
                             }
                         })
@@ -39,7 +39,7 @@ class MenuManager {
                             this.menuSectionManager.getMenuSectionsByMenuId(menu.id, (err, res) => {
                                 if (err) reject(err);
                                 else {
-                                    menu.mwnuSections=res;
+                                    menu.sections=res;
                                     resolve();
                                 }
                             });
@@ -66,10 +66,10 @@ class MenuManager {
                 Promise.all([this.menuExists(menu.id)]).then(() => {
                     this.mysqlMenu.createMenu(menu, (queryError, newMenu) => {
                         if (queryError) res(queryError);
-                        newMenu.menuSections = menu.menuSections;
+                        newMenu.sections = menu.sections;
                         menu = newMenu;
-                        if (menu.menuSections && menu.menuSections.length > 0) {
-                            Promise.all(menu.menuSections.map(menuSection => {
+                        if (menu.sections && menu.sections.length > 0) {
+                            Promise.all(menu.sections.map(menuSection => {
                                 return new Promise((resolve, reject) => {
                                     menuSection.menu = menu.id;
                                     this.menuSectionManager.createMenuSection(menuSection, (createMenuSectionErr, newMenuSection) => {
@@ -81,11 +81,11 @@ class MenuManager {
                                     });
                                 });
                             })).then((menuSections) => {
-                                menu.menuSections = menuSections;
+                                menu.sections = menuSections;
                                 res(null, menu);
                             }).catch((error) => { res(error); });
                         } else {
-                            menu.menuSections = [];
+                            menu.sections = [];
                             res(queryError, menu);
                         }
                     });

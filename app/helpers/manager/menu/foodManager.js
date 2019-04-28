@@ -11,7 +11,7 @@ class FoodManager {
                     this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, addon) => {
                         if (err) res(err);
                         else {
-                            food.foodAddOn=addon;
+                            food.addOns=addon;
                             res(null, food)
                         }
                     });
@@ -29,7 +29,7 @@ class FoodManager {
                             this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, res) => {
                                 if (err) reject(err);
                                 else {
-                                    food.foodAddOn=res;
+                                    food.addOns=res;
                                     resolve();
                                 }
                             });

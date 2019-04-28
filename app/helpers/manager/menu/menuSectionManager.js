@@ -14,7 +14,7 @@ class MenuSectionManager {
                             this.foodManager.getFoodByMenuSectionId(ms.id, (err, res) => {
                                 if (err) reject(err);
                                 else {
-                                    ms.food=res;
+                                    ms.foods=res;
                                     resolve();
                                 }
                             });
@@ -36,7 +36,7 @@ class MenuSectionManager {
                             this.foodManager.getFoodByMenuSectionId(ms.id, (err, res) => {
                                 if (err) reject(err);
                                 else {
-                                    ms.food=res;
+                                    ms.foods=res;
                                     resolve();
                                 }
                             });
