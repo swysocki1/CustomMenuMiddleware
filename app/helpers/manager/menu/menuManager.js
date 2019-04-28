@@ -49,7 +49,7 @@ class MenuManager {
                     }).catch((error) => { res(error); });
                 }
             });
-        } else res('Menu Id was not provided');
+        } else res('Restaurant Id was not provided');
     }
     createMenu(menu, res) {
         if (menu) {

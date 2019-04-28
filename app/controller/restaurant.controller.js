@@ -5,6 +5,24 @@ class RestaurantController extends Controller {
         this.restaurantManager = restaurantManager;
     }
     loadRoutes() {
+        this.router.get('/', (req, res) => {
+            try {
+                this.restaurantManager.getAllRestaurants((reqErr, reqRes) => {
+                    this.errorHandler.genericResponse(reqErr, reqRes, req, res);
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
+        this.router.get('/byOwner/:id', (req, res) => {
+            try {
+                this.restaurantManager.getOwnedRestaurantsByOwner(req.params, (reqErr, reqRes) => {
+                    this.errorHandler.genericResponse(reqErr, reqRes, req, res);
+                });
+            } catch(error) {
+                this.errorHandler.catchAllError(error, req, res);
+            }
+        });
         this.router.get('/:id', (req, res) => {
             try {
                 this.restaurantManager.getRestaurantById(req.params.id, (reqErr, reqRes) => {

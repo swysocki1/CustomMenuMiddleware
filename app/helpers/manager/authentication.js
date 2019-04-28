@@ -108,11 +108,15 @@ class Authentication {
 	}
 	userExists(user) {
         return new Promise((resolve, reject) => {
-            this.mysqlUser.getUserById(user, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('User Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (user && user.id) {
+                this.mysqlUser.getUserById(user.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else if (!queryRes) reject('User Does Not Exist!');
+                    else resolve(queryRes);
+                });
+            } else {
+                resolve();
+            }
         });
     }
 }

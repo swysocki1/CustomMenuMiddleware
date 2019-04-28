@@ -76,6 +76,26 @@
         }
       }
     },
+    "/restaurant": {
+      "get": {
+        "tags":[
+          "Restaurant"
+        ],
+        "summary": "Get Restaurant by ID",
+        "description": "Retrieve All Restaurants",
+        "responses": {
+          "200": {
+            "description": "Successful Connection",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Restaurant"
+              }
+            }
+          }
+        }
+      }
+    },
     "/restaurant/{restaurantId}": {
       "get": {
         "tags":[

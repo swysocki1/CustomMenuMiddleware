@@ -4,6 +4,29 @@ class RestaurantManager {
         this.authentication = authentication;
         this.menuManager = menuManager;
     }
+    getAllRestaurants(res) {
+        this.mysqlRestaurant.getAllRestaurants((getRestaurantsErr, restaurants) => {
+            if (getRestaurantsErr) res(getRestaurantsErr);
+            else {
+                if (restaurants && restaurants.length > 0) {
+
+                    Promise.all(restaurants.map((restaurant) => {
+                        return new Promise((resolve, reject) => {
+                            this.menuManager.getMenuByRestaurantId(restaurant.id, (err, menus) => {
+                                if (err) reject(err);
+                                else {
+                                    restaurant.menus = menus;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, this.groupOwners(restaurants));
+                    }).catch((error) => { res(error); });
+                }
+            }
+        });
+    }
     getRestaurantById(id, res) {
         if (id) {
             this.mysqlRestaurant.getRestaurantById(id, (getRestaurantErr, restaurant) => {
@@ -92,15 +115,31 @@ class RestaurantManager {
             else if (!getRestaurantRes) res('Restaurant Does Not Exist!');
             else {
                 this.mysqlRestaurant.getRestaurantOwnersByRestaurant(restaurant, (getOwnersErr, getOwnersRes) => {
-                    res(getOwnersErr, getOwnersRes);
+                    res(getOwnersErr, this.groupOwners(getOwnersRes));
                 });
             }
         });
     }
     getOwnedRestaurantsByOwner(user, res) {
         Promise.all([this.authentication.userExists(user)]).then(() => {
-            this.mysqlRestaurant.getOwnedRestaurantsByOwner(user, (getOwnersErr, getOwnersRes) => {
-                res(getOwnersErr, getOwnersRes);
+            this.mysqlRestaurant.getOwnedRestaurantsByOwner(user.id, (getOwnersErr, restaurants) => {
+                console.log(restaurants);
+                if (getOwnersErr) res(getOwnersErr);
+                if (restaurants && restaurants.length > 0) {
+                    Promise.all(restaurants.map((restaurant) => {
+                        return new Promise((resolve, reject) => {
+                            this.menuManager.getMenuByRestaurantId(restaurant.id, (err, menus) => {
+                                if (err) reject(err);
+                                else {
+                                    restaurant.menus = menus;
+                                    resolve();
+                                }
+                            });
+                        });
+                    })).then(() => {
+                        res(null, this.groupOwners(restaurants));
+                    }).catch((error) => { res(error); });
+                }
             });
         }).catch((error) => { res(error); });
     }
@@ -144,6 +183,22 @@ class RestaurantManager {
                 }
             });
         });
+    }
+    groupOwners(restaurants) {
+        if (restaurants && restaurants.length > 0) {
+            let r = [];
+            restaurants.forEach(restaurant => {
+               if (r.some(rest => rest.id === restaurant.id)) {
+                   r.find(rest => rest.id === restaurant.id).owners.push(restaurant.owner);
+               } else {
+                   restaurant.owners = [restaurant.owner];
+                   delete restaurant.owner;
+                   r.push(restaurant);
+               }
+            });
+            restaurants = r;
+        }
+        return restaurants;
     }
 }
 module.exports = RestaurantManager;
