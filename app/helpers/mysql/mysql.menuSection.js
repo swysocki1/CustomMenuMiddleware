@@ -37,7 +37,6 @@ class MysqlMenuSection extends MysqlConnector {
         const query = `insert into menu_section (menu, name, description, display_order) values (${menuSection.menu}, '${menuSection.name}', '${menuSection.description}', ${menuSection.displayOrder});`;
         this.query(query, this.timeout).then( (queryRes) => {
             this.getMenuSectionById(queryRes.insertId, (getMenuErr, menuRes) => {
-                console.log(menuRes);
                 res(getMenuErr, {... menuRes});
             });
         }).catch(queryError => { res(queryError); });

@@ -41,7 +41,7 @@ class Authentication {
             if (missingFields.length > 0) {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
-                this.mysqlUser.getUsersByUsername(username, (getUserErr, users) => {
+                this.mysqlUser.getUsersByUsername(user.username, (getUserErr, users) => {
                     if (getUserErr) res(getUserErr);
                     else {
                         if (users && users.length > 0) {

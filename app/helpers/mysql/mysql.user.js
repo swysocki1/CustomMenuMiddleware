@@ -4,15 +4,15 @@ class MysqlUser extends MysqlConnector {
         const query = `SELECT * from user where username='${username}'`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
-                res(null, queryRes);
+                res(null, queryRes.map(item => {return {... item}; }));
             else
                 res(null, []);
         }).catch(queryError => { res(queryError); });
     }
     createUser(user, res) {
-        const query = `Insert into user (username, password, firstname, lastname, email) values ('${user.username}', '${user.password}', '${user.firstname}', '${user.lastname}', '${username.email}')`;
+        const query = `Insert into user (username, password, firstname, lastname, email) values ('${user.username}', '${user.password}', '${user.firstname}', '${user.lastname}', '${user.email}')`;
         this.query(query, this.timeout).then( (queryRes) => {
-            this.getUserByUsername(user.username, (getUserErr, userRes) => {
+            this.getUserById(queryRes.insertId, (getUserErr, userRes) => {
                 res(getUserErr, userRes);
             });
         }).catch(queryError => { res(queryError); });
@@ -32,7 +32,7 @@ class MysqlUser extends MysqlConnector {
         const query = `SELECT * from user where id=${id}`;
         this.query(query, this.timeout).then( (users) => {
             if (users && users.length > 0)
-                res(null, users[0]);
+                res(null, {... users[0]});
             else
                 res(null, null);
         }).catch(queryError => { res(queryError); });
