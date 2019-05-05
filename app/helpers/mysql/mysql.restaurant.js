@@ -112,19 +112,19 @@ class MysqlRestaurant extends MysqlConnector {
             user = parseInt(user);
         if (typeof user === 'number') {
             const query = `select ro.owner, ro.restaurant, r.id, r.name, ` +
-                `r.description from restaurant_owner as ro JOIN restaurant r ON ro.owner=r.id where ro.owner=${user}`;
+                `r.description from restaurant_owner as ro JOIN restaurant r ON ro.restaurant=r.id where ro.owner=${user}`;
             this.query(query, this.timeout).then((queryResult) => {
                 res(null, queryResult.map(item => {return {... item}; }));
             }).catch((error) => { res(error); });
         } else res('No User Id Provided')
     }
     addRestaurantOwner(restaurant, user, res) {
-        if (typeof restaurant === 'string')
-            restaurant = parseInt(restaurant);
-        if (typeof restaurant === 'number') {
-            if (typeof user === 'string')
-                user = parseInt(user);
-            if (typeof user === 'number') {
+        if (restaurant) {
+            if (typeof restaurant === 'string')
+                restaurant = parseInt(restaurant);
+            if (user) {
+                if (typeof user === 'string')
+                    user = parseInt(user);
                 const query = `Insert into restaurant_owner (owner, restaurant) values (${user},${restaurant})`;
                 this.query(query, this.timeout).then((queryResult) => {
                     res(null, queryResult);

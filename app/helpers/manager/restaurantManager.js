@@ -49,17 +49,58 @@ class RestaurantManager {
         if (restaurant) {
             const missingFields = [];
             if (!restaurant.name) {
-                missingFields.add('Name');
+                missingFields.push('Name');
             }
             if (!restaurant.description) {
-                missingFields.add('Description');
+                missingFields.push('Description');
+            }
+            if (!restaurant.owners) {
+                missingFields.push('Owner');
             }
             if (missingFields.length > 0) {
                 res(`No ${missingFields.join(', ')} Provided`)
             } else {
+                if (!restaurant.menus) {
+                    restaurant.menus = [];
+                }
                 Promise.all([this.restaurantExists(restaurant)]).then(() => {
-                    this.mysqlRestaurant.createRestaurant(restaurant, (queryError, queryRes) => {
-                        res(queryError, queryRes);
+                    this.mysqlRestaurant.createRestaurant(restaurant, (queryError, newRestaurant) => {
+                        if (queryError) res(queryError);
+                        else {
+                            newRestaurant.owners = restaurant.owners;
+                            newRestaurant.menus = restaurant.menus;
+                            restaurant = newRestaurant;
+                            Promise.all(restaurant.owners.map(owner => {
+                                return new Promise((resolve, reject) => {
+                                   if (owner) {
+                                       this.addRestaurantOwner(newRestaurant.id, owner, (addOwnerErr, addOwnerRes) => {
+                                        if (addOwnerErr) reject(addOwnerErr);
+                                        else resolve(addOwnerRes);
+                                       });
+                                   } else {
+                                       resolve();
+                                   }
+                                });
+                            })).then(() => {
+                                Promise.all(restaurant.menus.map(menu => {
+                                    return new Promise((resolve, reject) => {
+                                        if (menu) {
+                                            this.menuManager.createMenu(newRestaurant.id, menu, (createMenuErr, createMenuRes) => {
+                                                if (createMenuErr) reject(createMenuErr);
+                                                else {
+                                                    menu = createMenuRes;
+                                                    resolve(createMenuRes);
+                                                }
+                                            });
+                                        } else {
+                                            resolve();
+                                        }
+                                    });
+                                })).then(() => {
+                                    res(null, restaurant);
+                                }).catch(error => { res(error); });
+                            }).catch(error => { res(error); });
+                        }
                     });
                 }).catch((error) => { res(error); });
             }
@@ -144,14 +185,14 @@ class RestaurantManager {
         }).catch((error) => { res(error); });
     }
     addRestaurantOwner(restaurant, user, res) {
-        Promise.all([this.restaurantExists(restaurant), this.authentication.userExists(owner), this.alreadyOwner(restaurant, user)]).then(() => {
+        Promise.all([this.restaurantExists(restaurant), this.authentication.userExists(user), this.alreadyOwner(restaurant, user)]).then(() => {
             this.mysqlRestaurant.addRestaurantOwner(restaurant, user, (err, queryRes) => {
                 res(err, queryRes);
             });
         }).catch((error) => { res(error); });
     }
     removeRestaurantOwner(restaurant, user, res) {
-        Promise.all([this.restaurantExists(restaurant), this.authentication.userExists(owner), this.alreadyOwner(restaurant, user)]).then(() => {
+        Promise.all([this.restaurantExists(restaurant), this.authentication.userExists(user), !this.alreadyOwner(restaurant, user)]).then(() => {
             this.mysqlRestaurant.removeRestaurantOwner(restaurant, user, (err, queryRes) => {
                 res(err, queryRes);
             });
@@ -161,11 +202,15 @@ class RestaurantManager {
     }
     restaurantExists(restaurant) {
         return new Promise((resolve, reject) => {
-            this.mysqlRestaurant.getRestaurantById(restaurant, (err, queryRes) => {
-                if (err) reject(err);
-                else if(!queryRes) reject('Restaurant Does Not Exist!');
-                else resolve(queryRes);
-            });
+            if (restaurant && restaurant.id) {
+                this.mysqlRestaurant.getRestaurantById(restaurant.id, (err, queryRes) => {
+                    if (err) reject(err);
+                    else if (!queryRes) reject('Restaurant Does Not Exist!');
+                    else resolve(queryRes);
+                });
+            } else {
+                resolve();
+            }
         });
     }
     alreadyOwner(restaurant, user) {
