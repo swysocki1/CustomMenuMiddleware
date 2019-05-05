@@ -97,10 +97,11 @@ class MysqlRestaurant extends MysqlConnector {
         else { res('No Restaurant Provided'); }
     }
     getRestaurantOwnersByRestaurant(restaurant, res) {
+        console.log(restaurant);
         if (typeof restaurant === 'string')
             restaurant = parseInt(restaurant);
         if (typeof restaurant === 'number') {
-            const query = `select r.id as restaurantOwnerId, r.owner, r.restaurant, u.id as userId, u.username, u.photoURL,` +
+            const query = `select r.restaurant, u.id as id, u.username, u.photoURL,` +
                 ` u.firstname, u.lastname, u.email from restaurant_owner as r JOIN user u ON r.owner=u.id where r.restaurant=${restaurant}`;
             this.query(query, this.timeout).then((queryResult) => {
                 res(null, queryResult.map(item => {return {... item}; }));

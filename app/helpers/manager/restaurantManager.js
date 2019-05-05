@@ -33,13 +33,21 @@ class RestaurantManager {
                 if (getRestaurantErr) res(getRestaurantErr);
                 else {
                     if (restaurant) {
-                        this.menuManager.getMenuByRestaurantId(restaurant.id, (err, menus) => {
-                            if (err) res(err);
+                        this.getRestaurantOwnersByRestaurant(restaurant, (getOwnersErr, owners) => {
+                            if (getOwnersErr) res(getOwnersErr);
                             else {
-                                restaurant.menus = menus;
-                                res(err, restaurant);
+                                restaurant.owners = owners;
+                                this.menuManager.getMenuByRestaurantId(restaurant.id, (err, menus) => {
+                                    if (err) res(err);
+                                    else {
+                                        restaurant.menus = menus;
+                                        res(err, restaurant);
+                                    }
+                                });
                             }
-                        })
+                        });
+
+
                     } else res('Menu was not found');
                 }
             });
@@ -151,12 +159,13 @@ class RestaurantManager {
         } else res('No Restaurant Provided');
     }
     getRestaurantOwnersByRestaurant(restaurant, res) {
-        this.mysqlRestaurant.getRestaurantById(restaurant, (getRestaurantErr, getRestaurantRes) => {
+        this.mysqlRestaurant.getRestaurantById(restaurant.id, (getRestaurantErr, getRestaurantRes) => {
             if (getRestaurantErr) res(getRestaurantErr);
             else if (!getRestaurantRes) res('Restaurant Does Not Exist!');
             else {
-                this.mysqlRestaurant.getRestaurantOwnersByRestaurant(restaurant, (getOwnersErr, getOwnersRes) => {
-                    res(getOwnersErr, this.groupOwners(getOwnersRes));
+                restaurant = getRestaurantRes;
+                this.mysqlRestaurant.getRestaurantOwnersByRestaurant(restaurant.id, (getOwnersErr, getOwnersRes) => {
+                    res(getOwnersErr, getOwnersRes);
                 });
             }
         });
@@ -164,7 +173,6 @@ class RestaurantManager {
     getOwnedRestaurantsByOwner(user, res) {
         Promise.all([this.authentication.userExists(user)]).then(() => {
             this.mysqlRestaurant.getOwnedRestaurantsByOwner(user.id, (getOwnersErr, restaurants) => {
-                console.log(restaurants);
                 if (getOwnersErr) res(getOwnersErr);
                 if (restaurants && restaurants.length > 0) {
                     Promise.all(restaurants.map((restaurant) => {
@@ -178,7 +186,19 @@ class RestaurantManager {
                             });
                         });
                     })).then(() => {
-                        res(null, this.groupOwners(restaurants));
+                        Promise.all(restaurants.map((restaurant) => {
+                            return new Promise((resolve, reject) => {
+                                console.log(restaurant.owner);
+                                this.authentication.getUserById(restaurant.owner, (err, owner) => {
+                                    if (err) reject(err);
+                                    else {
+                                        restaurant.owner = owner;
+                                        resolve(restaurant);
+                                    }
+                                });
+                            });
+                        })).then(() => { res(null, this.groupOwners(restaurants)); } )
+                            .catch((error) => { res(error); });
                     }).catch((error) => { res(error); });
                 }
             });
