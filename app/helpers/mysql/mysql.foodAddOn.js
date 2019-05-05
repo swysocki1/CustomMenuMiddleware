@@ -24,7 +24,7 @@ class MysqlFoodAddOn extends MysqlConnector {
         if (!foodAddOn.name) foodAddOn.name='';
         if (!foodAddOn.imgSrc) foodAddOn.imgSrc='';
         if (!foodAddOn.description) foodAddOn.description='';
-        const query = `insert into addons (name, img_src, description) values ('${foodAddOn.name}', '${foodAddOn.imgSrc}',  '${foodAddOn.description}');`;
+        const query = `insert into addons (name, img_src, price, description) values ('${foodAddOn.name}', '${foodAddOn.imgSrc}',  ${foodAddOn.price}, '${foodAddOn.description}');`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (!foodAddOn.food) {
                 this.getFoodAddOnById(queryRes.insertId, (createFoodAddOnErr, queryFoodAddon) => {

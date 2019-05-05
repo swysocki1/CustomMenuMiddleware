@@ -25,6 +25,7 @@ const RestaurantController = require('./controller/restaurant.controller');
 const MenuController = require('./controller/menu.controller');
 const MenuSectionController = require('./controller/menuSection.controller');
 const FoodController = require('./controller/food.controller');
+const FoodAddOnController = require('./controller/addon.controller');
 
 class Server {
     constructor() {
@@ -60,6 +61,7 @@ class Server {
         new MenuController(this.app, this.errorHandler, this.menuManager);
         new MenuSectionController(this.app, this.errorHandler, this.menuSectionManager, this.foodAddOnManager);
         new FoodController(this.app, this.errorHandler, this.foodManager, this.foodAddOnManager);
+        new FoodAddOnController(this.app, this.errorHandler, this.foodAddOnManager);
 
         // app.use('/v1/api', apiRouter);
         this.app.use(this.errorHandler.notFound);

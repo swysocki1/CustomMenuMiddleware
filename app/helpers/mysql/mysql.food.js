@@ -30,8 +30,8 @@ class MysqlFood extends MysqlConnector {
                 if (createFoodErr) res(createFoodErr);
                 else {
                     // res(getRestaurantErr, restaurantRes);
-                    this.addMenuSectionRelation(food.menuSection, queryRes.insertId, (relErr, relRes) => {
-                        createFoodResaurantRes.menuSection = food.menuSection;
+                    this.addMenuSectionRelation(food.section, queryRes.insertId, (relErr, relRes) => {
+                        createFoodResaurantRes.menuSection = food.section;
                         res(relErr, {... createFoodResaurantRes});
                     });
                 }

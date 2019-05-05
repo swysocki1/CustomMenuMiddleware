@@ -66,7 +66,7 @@ class MenuSectionManager {
                         menuSection = newMenuSection;
                         if (menuSection.foods && menuSection.foods.length > 0) {
                             Promise.all(menuSection.foods.map(food => {
-                                food.menuSection = menuSection.id;
+                                food.section = menuSection.id;
                                 return new Promise((resolve, reject) => {
                                     this.foodManager.createFood(food, (createFoodErr, newFood) => {
                                         if (createFoodErr) reject(createFoodErr);

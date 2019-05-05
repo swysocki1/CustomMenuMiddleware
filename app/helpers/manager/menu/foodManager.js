@@ -8,6 +8,8 @@ class FoodManager {
             this.mysqlFood.getFoodById(id, (getFoodErr, food) => {
                 if (getFoodErr) res(getFoodErr);
                 else {
+                    food.imgSrc = food['img_src'];
+                    delete food['img_src'];
                     this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, addon) => {
                         if (err) res(err);
                         else {
@@ -26,6 +28,8 @@ class FoodManager {
                 else {
                     Promise.all(foods.map((food) => {
                         return new Promise((resolve, reject) => {
+                            food.imgSrc = food['img_src'];
+                            delete food['img_src'];
                             this.foodAddOnManager.getFoodAddOnByFoodId(food.id, (err, res) => {
                                 if (err) reject(err);
                                 else {
@@ -59,6 +63,8 @@ class FoodManager {
                         else {
                             newFood.foodAddOns = food.foodAddOns;
                             food = newFood;
+                            food.imgSrc = food['img_src'];
+                            delete food['img_src'];
                             if (food.foodAddOns && food.foodAddOns.length > 0) {
                                 Promise.all(food.foodAddOns.map(foodAddOn => {
                                     foodAddOn.food = food.id;
@@ -100,6 +106,8 @@ class FoodManager {
 
                             getFoodRes.foodAddOns = food.foodAddOns;
                             food = getFoodRes;
+                            food.imgSrc = food['img_src'];
+                            delete food['img_src'];
                             if (food.foodAddOns && food.foodAddOns.length > 0) {
                                 Promise.all(food.foodAddOns.map(foodAddOn => {
                                     foodAddOn.food = food.id;
