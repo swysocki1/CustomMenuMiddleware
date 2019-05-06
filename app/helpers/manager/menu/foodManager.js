@@ -159,10 +159,17 @@ class FoodManager {
         if (food) {
             if (food.id) {
                 this.mysqlFood.deleteFood(food, (deleteFoodErr, deleteFoodRes) => {
-                    res(deleteFoodErr, deleteFoodRes);
+                    if (deleteFoodErr) res(deleteFoodErr);
+                    else if(food.section) {
+                        this.mysqlFood.deleteMenuSectionRelation(food.section, food.id, (deleteFoodRelErr, foodRelRes) => {
+                            res(deleteFoodRelErr, foodRelRes);
+                        });
+                    } else {
+                        res(null, deleteFoodRes);
+                    }
                 });
             } else {
-                this.createFood(food, res);
+                res('No Food Id Provided');
             }
         } else res('No Food Provided');
     }

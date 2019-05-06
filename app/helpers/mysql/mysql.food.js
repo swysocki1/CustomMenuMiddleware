@@ -12,7 +12,7 @@ class MysqlFood extends MysqlConnector {
         }).catch(queryError => { res(queryError); });
     }
     getFoodByMenuSectionId(menuSection, res) {
-        const query = `SELECT * from food f JOIN food_in_section fis ON f.id=fis.food where fis.section=${menuSection}`;
+        const query = `SELECT f.*, fis.section as section from food f JOIN food_in_section fis ON f.id=fis.food where fis.section=${menuSection}`;
         this.query(query, this.timeout).then( (queryRes) => {
             if (queryRes && queryRes.length > 0)
                 res(null, queryRes.map(item => {return {... item}; }));
@@ -62,6 +62,7 @@ class MysqlFood extends MysqlConnector {
                             const updates = [];
                             if (food.name) updates.push(`name = '${food.name}'`);
                             if (food.description) updates.push(`description = '${food.description}'`);
+                            if (food.price) updates.push(`price = ${food.price}`);
                             if (food.imgSrc) updates.push(`img_src = '${food.imgSrc}'`);
                             if (updates.length > 0) {
                                 query = query + `${updates.join(', ')} WHERE id = ${food.id}`;
@@ -114,6 +115,17 @@ class MysqlFood extends MysqlConnector {
         if (menuSection) {
             if (food) {
                 const query = `INSERT INTO food_in_section (section, food) values ('${menuSection}', '${food}')`;
+                this.query(query, this.timeout).then((queryResult) => {
+                    res(null, queryResult);
+                }).catch((error) => { res(error); });
+            } else res('No Food Provided In Relation');
+        }
+        else { res('No MenuSection Provided In Relation'); }
+    }
+    deleteMenuSectionRelation(menuSection, food, res) {
+        if (menuSection) {
+            if (food) {
+                const query = `Delete food_in_section where section = ${menuSection} and food = ${food})`;
                 this.query(query, this.timeout).then((queryResult) => {
                     res(null, queryResult);
                 }).catch((error) => { res(error); });

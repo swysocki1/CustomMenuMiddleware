@@ -126,7 +126,20 @@ class MenuSectionManager {
         if (menuSection) {
             if (menuSection.id) {
                 this.mysqlMenuSection.deleteMenuSection(menuSection, (deleteMenuSectionErr, deleteMenuSectionRes) => {
-                    res(deleteMenuSectionErr, deleteMenuSectionRes);
+                    if (deleteMenuSectionErr) res(deleteMenuSectionErr);
+                    else {
+                        Promise.all(menuSection.foods.map(food => {
+                            return new Promise((resolve, reject) => {
+                                this.foodManager.deleteFood(food, (deleteFoodErr, deleteFoodRes) => {
+                                    if (deleteFoodErr) reject(deleteFoodErr);
+                                    else resolve(deleteFoodRes);
+                                });
+                            });
+                        })).then(() => {
+                            res(null, deleteMenuSectionRes);
+                        }).catch(error => { res(error); });
+                    }
+                    // res(deleteMenuSectionErr, deleteMenuSectionRes);
                 });
             } else {
                 this.createMenuSection(menuSection, res);

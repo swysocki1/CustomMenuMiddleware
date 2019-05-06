@@ -130,7 +130,19 @@ class MenuManager {
         if (menu) {
             if (menu.id) {
                 this.mysqlMenu.deleteMenu(menu, (deleteMenuErr, deleteMenuRes) => {
-                    res(deleteMenuErr, deleteMenuRes);
+                    if (deleteMenuErr) res(deleteMenuErr);
+                    else {
+                        Promise.all(menu.sections.map(section => {
+                            return new Promise((resolve, reject) => {
+                                this.menuSectionManager.deleteMenuSection(section, (deleteSectionErr, deleteSectionRes) => {
+                                    if (deleteSectionErr) reject(deleteSectionErr);
+                                    else resolve(deleteSectionRes);
+                                });
+                            });
+                        })).then(() => {
+                            res(null, deleteMenuRes);
+                        }).catch(error => { res(error); });
+                    }
                 });
             } else {
                 this.createMenu(menu, res);

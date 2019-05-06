@@ -151,7 +151,19 @@ class RestaurantManager {
         if (restaurant) {
             if (restaurant.id) {
                 this.mysqlRestaurant.deleteRestaurant(restaurant, (deleteRestaurantErr, deleteRestaurantRes) => {
-                    res(deleteRestaurantErr, deleteRestaurantRes);
+                    if (deleteRestaurantErr) res(deleteRestaurantErr);
+                    else {
+                        Promise.all(restaurant.menus.map(menu => {
+                            return new Promise((resolve, reject) => {
+                                this.menuManager.deleteMenu(menu, (deleteMenuErr, deleteMenuRes) => {
+                                    if (deleteMenuErr) reject(deleteMenuErr);
+                                    else resolve(deleteMenuRes);
+                                });
+                            });
+                        })).then(() => {
+                            res(null, deleteRestaurantRes);
+                        }).catch(error => { res(error); });
+                    }
                 });
             } else {
                 this.createRestaurant(restaurant, res);

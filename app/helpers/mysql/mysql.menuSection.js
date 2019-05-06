@@ -59,13 +59,14 @@ class MysqlMenuSection extends MysqlConnector {
                         if(!getMenuSectionByIdRes) {
                             res('MenuSection Does Not Exist');
                         } else {
+                            const update = [];
                             let query = `UPDATE menu_section SET `;
-                            if (menuSection.name) query += `name = '${menuSection.name}' `;
-                            if (menuSection.description) query += `description = '${menuSection.description}' `;
-                            if (menuSection.displayOrder) query += `display_order = '${menuSection.displayOrder}' `;
-                            query += 'WHERE id = menuSection.id';
-                            this.query(query, this.timeout).then((res) => {
-                                res(null, res);
+                            if (menuSection.name) update.push(`name = '${menuSection.name}'`);
+                            if (menuSection.description) update.push(`description = '${menuSection.description}'`);
+                            if (menuSection.displayOrder) update.push(`display_order = '${menuSection.displayOrder}'`);
+                            query += update.join(', ') + ` WHERE id = ${menuSection.id}`;
+                            this.query(query, this.timeout).then((queryResult) => {
+                                res(null, queryResult);
                             }).catch((error) => { res(error); });
                         }
                     }
@@ -84,14 +85,26 @@ class MysqlMenuSection extends MysqlConnector {
                         } else {
                             let query = `UPDATE menu_section SET name = '${menuSection.name}' description = '${menuSection.description}'` +
                                 ` display_order = '${menuSection.displayOrder}' WHERE id = ${menuSection.id}`;
-                            this.query(query, this.timeout).then((res) => {
-                                res(null, res);
+                            this.query(query, this.timeout).then((queryResult) => {
+                                res(null, queryResult);
                             }).catch((error) => { res(error); });
                         }
                     }
                 });
             } else res('No MenuSection id Provided');
         } else res('No MenuSection Object Provided');
+    }
+    deleteMenuSection(section, res) {
+        if (section) {
+            if (typeof section === 'number' || section.id) {
+                const sectionId = typeof section === 'number' ? section : section.id;
+                const query = `DELETE FROM menu_section WHERE id = ${sectionId}`;
+                this.query(query, this.timeout).then((queryResult) => {
+                    res(null, queryResult);
+                }).catch((error) => { res(error); });
+            } else res('No Food id Provided');
+        }
+        else { res('No Food Provided'); }
     }
 }
 module.exports = MysqlMenuSection;
